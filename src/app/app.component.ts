@@ -8,6 +8,7 @@ import { Title } from '@angular/platform-browser'
 })
 export class AppComponent {
   title = 'AC FlowerPower';
+  activeView = 'oh';
 
   public constructor(private titleService: Title) {
     titleService.setTitle("AC FlowerPower");

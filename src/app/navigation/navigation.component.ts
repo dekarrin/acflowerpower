@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./navigation.component.css']
 })
 export class NavigationComponent implements OnInit {
-  actions: string[] = ['Breeder', 'Phenotypes']
+  actions: string[] = ['breeder', 'phenotypes']
   alert = window.alert
   constructor() {
   }

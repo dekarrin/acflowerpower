@@ -1,0 +1,13 @@
+<mat-toolbar>
+  <span class="toolbar-title">AC FlowerPower</span>
+  <span class="fill-remaining"></span>
+  <div class="hide-on-small-width">
+    <a href="#" mat-button *ngFor="let action of actions">{{action}}</a>
+  </div>
+  <div class="hide-on-medium-width">
+    <button mat-icon-button [matMenuTriggerFor]="appMenu"><mat-icon>menu</mat-icon></button>
+  </div>
+</mat-toolbar>
+<mat-menu #appMenu="matMenu">
+  <a mat-menu-item href="#" *ngFor="let action of actions">{{action}}</a>
+</mat-menu>

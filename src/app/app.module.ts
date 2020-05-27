@@ -19,6 +19,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { GeneselectorComponent } from './geneselector/geneselector.component';
 
+import { GeneLabelPipe } from './gene-label-pipe';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,7 +28,8 @@ import { GeneselectorComponent } from './geneselector/geneselector.component';
     PhenotypesComponent,
     BreederComponent,
     HomeComponent,
-    GeneselectorComponent
+    GeneselectorComponent,
+    GeneLabelPipe
   ],
   imports: [
     BrowserModule,

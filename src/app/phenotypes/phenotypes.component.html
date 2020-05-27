@@ -1,15 +1,17 @@
 <h2>Flower Phenotypes</h2>
 
-<mat-form-field>
-  <mat-label>Species</mat-label><!--(selectionChange)="onSpeciesSelected()"-->
-  <mat-select [(ngModel)]="selectedSpecies">
+<mat-form-field class="species-selector">
+  <mat-label>Species</mat-label>
+  <mat-select [(ngModel)]="flower.species">
     <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>
   </mat-select>
 </mat-form-field>
-<br/>
 
-<div *ngIf="selectedSpecies">
-  <app-geneselector [species]="selectedSpecies" [(ngModel)]="genotype"></app-geneselector>
-  <button (click)="alter()" matButton>Kill</button>
-  <p>CURRENT: <span>{{genotype}}</span></p>
-</div>
+<ng-container *ngIf="flower.species">
+  <app-geneselector [species]="flower.species" [(ngModel)]="flower.genes"></app-geneselector>
+
+</ng-container>
+<br/>
+FLOWER: <b>{{flower.species.name}}</b>
+<br/>
+GENES: <b>{{flower.genes}}</b>

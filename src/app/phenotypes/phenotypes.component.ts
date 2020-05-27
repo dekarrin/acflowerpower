@@ -1,39 +1,36 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, DoCheck } from '@angular/core';
 
 import { Species } from '../species';
 
 import { SpeciesService } from '../species.service';
+import { Flower } from '../flower';
+
+import { LogService } from '../log.service';
 
 @Component({
   selector: 'app-phenotypes',
   templateUrl: './phenotypes.component.html',
   styleUrls: ['./phenotypes.component.css']
 })
-export class PhenotypesComponent implements OnInit {
+export class PhenotypesComponent implements OnInit, DoCheck {
 
   allFlowerSpecies: Species[];
 
-  selectedSpecies: Species;
+  flower: Flower
 
-  genotype: number[];
+  constructor(private speciesService: SpeciesService, private logService: LogService, private cdr: ChangeDetectorRef) { }
 
-  constructor(private speciesService: SpeciesService, private cdr: ChangeDetectorRef) { }
+  ngDoCheck(): void {
+    this.cdr.detectChanges();
+  }
 
   ngOnInit(): void {
     this.getSpecies();
-    this.selectedSpecies = this.allFlowerSpecies[0];
-    this.genotype = [0, 1, 1]
-  }
-
-  newEntered(): void {
-    
+    this.flower = {species: this.allFlowerSpecies[0], genes: [0, 1, 1]};
   }
 
   getSpecies(): void {
     this.allFlowerSpecies = this.speciesService.getAllSpecies();
   }
 
-  alter(): void {
-    this.genotype = [1, 1, 1];
-  }
 }

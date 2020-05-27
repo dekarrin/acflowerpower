@@ -3,9 +3,9 @@
     <mat-form-field class="gene-selector" *ngIf="hasGene(g)">
       <mat-label *ngIf="g === geneLabels[0]">Genes</mat-label>
       <mat-select [(ngModel)]="selectedGenes[g]" (selectionChange)="setSequenceFromSelector()">
-        <mat-option [value]="0">{{g}}{{g}}</mat-option>
-        <mat-option [value]="1">{{g | uppercase}}{{g}}</mat-option>
-        <mat-option [value]="2">{{g | uppercase}}{{g | uppercase}}</mat-option>
+        <mat-option [value]="0">{{0 | geneLabel:g }}</mat-option>
+        <mat-option [value]="1">{{1 | geneLabel:g }}</mat-option>
+        <mat-option [value]="2">{{2 | geneLabel:g }}</mat-option>
       </mat-select>
     </mat-form-field>
   </ng-container>

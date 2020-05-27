@@ -77,6 +77,7 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
           this.selectedGenes[g] = this.value[i];
           seq += String(this.value[i]);
         }
+        this.geneSequence = seq;
       }
     }
   }
@@ -103,7 +104,6 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
       seq += String(this.selectedGenes[g]);
     }
     this.geneSequence = seq;
-    this.logService.log("EMITTED: " + new_val.toString());
     this.value = new_val
   }
 
@@ -117,7 +117,6 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
       new_val.push(parseInt(this.geneSequence[i]));
       this.selectedGenes[geneName] = parseInt(this.geneSequence[i]);
     }
-    this.logService.log("EMITTED: " + new_val.toString());
     this.value = new_val;
   }
 

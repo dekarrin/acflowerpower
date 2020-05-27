@@ -3,7 +3,9 @@ import { Component, OnInit, ChangeDetectorRef, DoCheck } from '@angular/core';
 import { Species } from '../species';
 
 import { SpeciesService } from '../species.service';
-import { Flower } from '../flower';
+import { Flower, getFlowerColor } from '../flower';
+
+import { Color } from '../color';
 
 import { LogService } from '../log.service';
 
@@ -31,6 +33,14 @@ export class PhenotypesComponent implements OnInit, DoCheck {
 
   getSpecies(): void {
     this.allFlowerSpecies = this.speciesService.getAllSpecies();
+  }
+
+  getColor(): Color {
+    return getFlowerColor(this.flower);
+  }
+
+  getColorClass(): string {
+    return this.getColor() + "-flower flower-title";
   }
 
 }

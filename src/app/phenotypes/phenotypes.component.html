@@ -11,7 +11,7 @@
   <app-geneselector [species]="flower.species" [(ngModel)]="flower.genes"></app-geneselector>
 
 </ng-container>
-<br/>
-FLOWER: <b>{{flower.species.name}}</b>
-<br/>
-GENES: <b>{{flower.genes}}</b>
+<hr/>
+<h3 class="{{getColorClass()}}">{{getColor()}} {{flower.species.name}}</h3>
+<br />
+<img src="assets/images/{{flower.species.namePlural}}/{{flower.species.name}}-{{getColor()}}.png" />

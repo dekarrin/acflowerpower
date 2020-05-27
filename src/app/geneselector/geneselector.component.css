@@ -1,0 +1,19 @@
+.gene-selector {
+  width: 3.0em;
+  margin-right: 0.2em;
+  margin-left: 0.2em;
+}
+
+.gene-selector-row {
+  display: inline;
+}
+
+.gene-shorthand {
+  font-size: 0.8em;
+  width: 3.5em;
+}
+
+.spacer {
+  margin-left: 0.4em;
+  margin-right: 0.6em;
+}

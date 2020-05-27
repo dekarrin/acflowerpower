@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavigationComponent } from './navigation/navigation.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -13,6 +14,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { PhenotypesComponent } from './phenotypes/phenotypes.component';
 import { BreederComponent } from './breeder/breeder.component';
 import { HomeComponent } from './home/home.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { GeneselectorComponent } from './geneselector/geneselector.component';
 
 @NgModule({
   declarations: [
@@ -20,17 +25,22 @@ import { HomeComponent } from './home/home.component';
     NavigationComponent,
     PhenotypesComponent,
     BreederComponent,
-    HomeComponent
+    HomeComponent,
+    GeneselectorComponent
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     BrowserAnimationsModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
     OverlayModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

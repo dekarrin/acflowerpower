@@ -1,0 +1,19 @@
+<div class="gene-selector-row">
+  <ng-container *ngFor="let g of geneLabels">
+    <mat-form-field class="gene-selector" *ngIf="hasGene(g)">
+      <mat-label *ngIf="g === geneLabels[0]">Genes</mat-label>
+      <mat-select [(ngModel)]="selectedGenes[g]" (selectionChange)="setSequenceFromSelector()">
+        <mat-option [value]="0">{{g}}{{g}}</mat-option>
+        <mat-option [value]="1">{{g | uppercase}}{{g}}</mat-option>
+        <mat-option [value]="2">{{g | uppercase}}{{g | uppercase}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+</div>
+<span class="spacer">=</span>
+<mat-form-field class="gene-shorthand">
+  <input [(ngModel)]="geneSequence" (keyup)="setSelectorFromSequence()" (blur)="setSequenceFromSelector()" matInput/>
+  <mat-hint>Shorthand</mat-hint>
+</mat-form-field>
+<!-- placing mat-error into the form field makes everything break. -->
+<mat-error *ngIf="geneSequence && !geneSequenceIsValid()">Not a valid gene sequence.</mat-error>

@@ -17,9 +17,13 @@ import { HomeComponent } from './home/home.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
 import { GeneselectorComponent } from './geneselector/geneselector.component';
-
 import { GeneLabelPipe } from './gene-label-pipe';
+import { GeneSequenceLabelPipe } from './gene-sequence-label-pipe';
+import { GeneSequenceShorthandPipe } from './gene-sequence-shorthand-pipe';
+import { FlowerIconComponent } from './flower-icon/flower-icon.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,10 @@ import { GeneLabelPipe } from './gene-label-pipe';
     BreederComponent,
     HomeComponent,
     GeneselectorComponent,
-    GeneLabelPipe
+    GeneLabelPipe,
+    GeneSequenceLabelPipe,
+    GeneSequenceShorthandPipe,
+    FlowerIconComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +50,9 @@ import { GeneLabelPipe } from './gene-label-pipe';
     AppRoutingModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatInputModule
+    MatInputModule,
+    MatTabsModule,
+    MatListModule
   ],
   providers: [],
   bootstrap: [AppComponent]

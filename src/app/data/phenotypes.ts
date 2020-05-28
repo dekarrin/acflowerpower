@@ -2,7 +2,7 @@ import { SPECIES_ID_ROSE, SPECIES_ID_MUM, SPECIES_ID_LILY, SPECIES_ID_COSMO, SPE
 
 import { Color } from '../color';
 
-export const PHENOTYPES: {[key: number]: any} = {
+export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]} = {
   [SPECIES_ID_ROSE]: [
 		[
 			[

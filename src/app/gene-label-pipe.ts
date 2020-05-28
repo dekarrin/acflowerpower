@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-const invertLabels = ['w'];
+import { INVERT_LABELS } from './app-options';
 
 @Pipe({name: 'geneLabel'})
 export class GeneLabelPipe implements PipeTransform {
   transform(value: number, label: string): string {
-    if (invertLabels.indexOf(label.toLowerCase()) > -1) {
+    if (INVERT_LABELS.indexOf(label.toLowerCase()) > -1) {
       if (value == 0) {
         value = 2;
       } else if (value == 2) {

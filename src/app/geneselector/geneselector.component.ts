@@ -111,11 +111,15 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
     if (!this.geneSequenceIsValid()) {
       return;
     }
-    let new_val = [];
     for (let i = 0; i < this.geneSequence.length; i++) {
       let geneName = this.species.genes[i];
-      new_val.push(parseInt(this.geneSequence[i]));
       this.selectedGenes[geneName] = parseInt(this.geneSequence[i]);
+    }
+    // separately update the new value from the selected genes
+    let new_val = [];
+    for (let i = 0; i < this.species.genes.length; i++) {
+      let g = this.species.genes[i];
+      new_val.push(this.selectedGenes[g]);
     }
     this.value = new_val;
   }

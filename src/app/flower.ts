@@ -9,11 +9,14 @@ export interface Flower {
 }
 
 export function getFlowerColor(f: Flower): Color {
-  let specId = f.species.id;
+  return getFlowerColorByGenes(f.species.id, f.genes);
+}
+
+export function getFlowerColorByGenes(speciesId: number, genes: number[]): Color {
   // WARNING: we are losing compile-time type-safety here.
-  let color: any = PHENOTYPE_DEFINITIONS[specId];
-  for (let i = 0; i < f.genes.length; i++) {
-    color = color[f.genes[i]];
+  let color: any = PHENOTYPE_DEFINITIONS[speciesId];
+  for (let i = 0; i < genes.length; i++) {
+    color = color[genes[i]];
   }
   return color;
 }

@@ -13,7 +13,7 @@ export class FlowerIconComponent implements OnInit {
   @Input() species: Species;
   @Input() color: Color;
 
-  // Should be one of: "large", "medium", "small", "tiny"
+  // Should be one of: "large", "medium", "small", "very-small", "tiny"
   @Input() size: string = "large";
 
   constructor() { }

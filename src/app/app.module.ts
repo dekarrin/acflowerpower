@@ -19,6 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { GeneselectorComponent } from './geneselector/geneselector.component';
 import { GeneLabelPipe } from './gene-label-pipe';
 import { GeneSequenceLabelPipe } from './gene-sequence-label-pipe';
@@ -52,7 +53,8 @@ import { FlowerIconComponent } from './flower-icon/flower-icon.component';
     MatSelectModule,
     MatInputModule,
     MatTabsModule,
-    MatListModule
+    MatListModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,5 +1,16 @@
+export enum SpeciesId {
+  Rose,
+  Cosmo,
+  Lily,
+  Pansy,
+  Hyacinth,
+  Tulip,
+  Mum,
+  Windflower
+}
+
 export interface Species {
-  id: number;
+  id: SpeciesId;
   name: string;
   namePlural: string;
   genes: string[];

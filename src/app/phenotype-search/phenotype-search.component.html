@@ -1,12 +1,12 @@
 <h3>Color Finder</h3>
-<mat-form-field class="species-selector">
+<mat-form-field class="flower-selector-component">
   <mat-label>Species</mat-label>
   <mat-select [(ngModel)]="searchSpecies">
     <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>
   </mat-select>
 </mat-form-field>
 
-<mat-form-field class="species-selector">
+<mat-form-field class="flower-selector-component">
   <mat-label>Color</mat-label>
   <mat-select [(ngModel)]="searchColor">
     <mat-option *ngFor="let c of allColors" [value]="c" [disabled]="!colorIsAvailable(c)">{{c | titlecase}}</mat-option>

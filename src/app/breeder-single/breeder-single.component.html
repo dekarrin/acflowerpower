@@ -1,0 +1,22 @@
+<h3>Single Breeding Pair Simulator</h3>
+
+<mat-form-field class="flower-selector-component">
+  <mat-label>Species</mat-label>
+  <mat-select [(ngModel)]="species">
+    <mat-option *ngFor="let s of allFlowerSpecies" [value]="s">{{s.name | titlecase}}</mat-option>
+  </mat-select>
+</mat-form-field>
+<br/>
+<div class="parent-selector">
+  <span class="parent-label">Parent #1:&nbsp;</span>
+  <app-geneselector [species]="species" [(ngModel)]="parent1Genes"></app-geneselector>
+</div>
+<br />
+<div class="parent-selector">
+  <span class="parent-label">Parent #2:&nbsp;</span>
+  <app-geneselector [species]="species" [(ngModel)]="parent2Genes"></app-geneselector>
+</div>
+<br />
+<button mat-raised-button color="primary">Breed</button>
+<h4>Results</h4>
+<span class="sim-not-started-message" *ngIf="!simulationComplete">Select parents to breed and hit "Breed" to begin the simulation.</span>

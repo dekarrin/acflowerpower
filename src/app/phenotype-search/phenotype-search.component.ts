@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { SpeciesService } from '../species.service';
 import { Species } from '../species';
-import { Flower, getDefaultFlower, getFlowerColorByGenes } from '../flower';
+import { FlowerService } from '../flower.service';
 import { PhenotypeService } from '../phenotype.service';
-import { BreedService } from '../breed.service';
+import { BreederService } from '../breeder.service';
 import { Color, ALL_COLORS } from '../color';
 
 @Component({
@@ -25,7 +25,12 @@ export class PhenotypeSearchComponent implements OnInit {
   searchParent1Genes: number[];
   searchParent2Genes: number[];
 
-  constructor(private speciesService: SpeciesService, private phenotypeService: PhenotypeService, private breederService: BreedService) { }
+  constructor(
+    private speciesService: SpeciesService,
+    private phenotypeService: PhenotypeService,
+    private breederService: BreederService,
+    private flowerService: FlowerService
+  ) { }
 
   ngOnInit(): void {
     this.getSpecies();
@@ -33,10 +38,10 @@ export class PhenotypeSearchComponent implements OnInit {
     this.parent1Opened = false;
     this.parent2Opened = false;
     this.allColors = ALL_COLORS;
-    this.searchSpecies = this.allFlowerSpecies[0];
+    this.searchSpecies = this.flowerService.getDefaultFlower().species;
     this.searchColor = 'white';
-    this.searchParent1Genes = getDefaultFlower().genes;
-    this.searchParent2Genes = getDefaultFlower().genes;
+    this.searchParent1Genes = this.flowerService.getDefaultFlower().genes;
+    this.searchParent2Genes = this.flowerService.getDefaultFlower().genes;
   }
 
   getSpecies(): void {
@@ -48,17 +53,17 @@ export class PhenotypeSearchComponent implements OnInit {
   }
 
   colorIsAvailable(color: Color): boolean {
-    return color in this.phenotypesBySpecies[this.searchSpecies.id];
+    return this.phenotypeService.speciesHasColor(this.searchSpecies.id, color);
   }
 
   getSearchParent1Color(): Color {
-    return getFlowerColorByGenes(this.searchSpecies.id, this.searchParent1Genes);
+    return this.phenotypeService.getColorByGenes(this.searchSpecies.id, this.searchParent1Genes);
   }
 
   getSearchParent2Color(): Color {
-    return getFlowerColorByGenes(this.searchSpecies.id, this.searchParent2Genes);
+    return this.phenotypeService.getColorByGenes(this.searchSpecies.id, this.searchParent2Genes);
   }
-  
+
   currentSearch(): number[][] {
     let search = this.phenotypesBySpecies[this.searchSpecies.id][this.searchColor];
     if (this.parent1Opened && !this.parent2Opened) {

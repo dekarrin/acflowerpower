@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Species } from './species';
+import { Species, SpeciesId } from './species';
 
 import { SPECIES_DEFINITIONS } from './data/species';
 
@@ -11,9 +11,9 @@ export class SpeciesService {
 
   constructor() { }
 
-  getSpecies(id: number): Species {
+  getSpecies(id: SpeciesId): Species {
     for (let s of SPECIES_DEFINITIONS) {
-      if (s.id == id) {
+      if (s.id === id) {
         return s;
       }
     }

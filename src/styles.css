@@ -24,3 +24,11 @@ body, input[type="text"], button {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.flower-selector-component {
+  margin-right: 0.8em;
+}
+
+app-geneselector {
+  display: inline-block;
+}

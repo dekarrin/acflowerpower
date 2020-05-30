@@ -27,6 +27,9 @@ import { GeneSequenceShorthandPipe } from './gene-sequence-shorthand-pipe';
 import { FlowerIconComponent } from './flower-icon/flower-icon.component';
 import { PhenotypeSelectorComponent } from './phenotype-selector/phenotype-selector.component';
 import { PhenotypeSearchComponent } from './phenotype-search/phenotype-search.component';
+import { BreederSingleComponent } from './breeder-single/breeder-single.component';
+import { BreederMultiComponent } from './breeder-multi/breeder-multi.component';
+import { BreederPlannerComponent } from './breeder-planner/breeder-planner.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +44,10 @@ import { PhenotypeSearchComponent } from './phenotype-search/phenotype-search.co
     GeneSequenceShorthandPipe,
     FlowerIconComponent,
     PhenotypeSelectorComponent,
-    PhenotypeSearchComponent
+    PhenotypeSearchComponent,
+    BreederSingleComponent,
+    BreederMultiComponent,
+    BreederPlannerComponent
   ],
   imports: [
     BrowserModule,

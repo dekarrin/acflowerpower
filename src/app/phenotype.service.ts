@@ -3,27 +3,54 @@ import { Injectable } from '@angular/core';
 import { Color } from './color';
 
 import { PHENOTYPE_DEFINITIONS } from './data/phenotypes';
+import { SpeciesId } from './species';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PhenotypeService {
 
-  private _indexedByColor: {[key: number]: {[K in Color]: [number[]]}};
+  private _indexedByColor: {[key in SpeciesId]: {[K in Color]?: [number[]]}};
 
   constructor() { }
 
-  getAllIndexedByGene(): {[key: number]: any} {
+  getColorByGenes(speciesId: SpeciesId, genes: number[]): Color {
+    // WARNING: we are losing compile-time type-safety here.
+    let color: any = PHENOTYPE_DEFINITIONS[speciesId];
+    for (let i = 0; i < genes.length; i++) {
+      color = color[genes[i]];
+    }
+    return color;
+  }
+
+  speciesHasColor(speciesId: SpeciesId, color: Color) {
+    if (!this._indexedByColor) {
+      this.getAllIndexedByColor();
+    }
+    return color in this._indexedByColor[speciesId];
+  }
+
+  getAllIndexedByGene(): {[key in SpeciesId]: any} {
     return PHENOTYPE_DEFINITIONS;
   }
 
-  getAllIndexedByColor(): {[key: number]: {[K in Color]: [number[]]}} {
+  getAllIndexedByColor(): {[key in SpeciesId]: {[K in Color]?: [number[]]}} {
     if (this._indexedByColor) {
       return this._indexedByColor;
     }
-    let bySpecies = {};
+    let bySpecies: {[key in SpeciesId]: {[K in Color]?: [number[]]}} = {
+      [SpeciesId.Rose]: {},
+      [SpeciesId.Cosmo]: {},
+      [SpeciesId.Lily]: {},
+      [SpeciesId.Pansy]: {},
+      [SpeciesId.Hyacinth]: {},
+      [SpeciesId.Tulip]: {},
+      [SpeciesId.Mum]: {},
+      [SpeciesId.Windflower]: {}
+    };
     let phenotypeDefinitions = this.getAllIndexedByGene();
-    for (let specId in phenotypeDefinitions) {
+    for (let item in phenotypeDefinitions) {
+      let specId: SpeciesId = parseInt(item) as SpeciesId;
       let phenotypesTable = phenotypeDefinitions[specId];
       let c: Color;
       let seq: number[];
@@ -56,7 +83,7 @@ export class PhenotypeService {
     return bySpecies;
   }
 
-  getPossibleColors(speciesId: number): Color[] {
+  getPossibleColors(speciesId: SpeciesId): Color[] {
     if (!this._indexedByColor) {
       this.getAllIndexedByColor();
     }

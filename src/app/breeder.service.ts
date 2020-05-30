@@ -1,11 +1,63 @@
 import { Injectable } from '@angular/core';
 
+import { Flower } from './flower';
+
+function randRange(min: number, max: number) {
+  return (Math.random() * (max - min)) + min;
+}
+
+function randInt(min: number, max: number) {
+  return Math.floor(randRange(Math.floor(min), Math.floor(max + 1)));
+}
+
 @Injectable({
   providedIn: 'root'
 })
-export class BreedService {
+export class BreederService {
 
   constructor() { }
+
+  recombineGenes(g1: number, g2: number): number {
+    let allele1: number;
+    let allele2: number;
+    if (g1 === 0) {
+      allele1 = 0;
+    } else if (g1 === 2) {
+      allele1 = 1;
+    } else {
+      allele1 = randInt(0, 1);
+    }
+    if (g2 === 0) {
+      allele2 = 0;
+    } else if (g2 === 2) {
+      allele2 = 1;
+    } else {
+      allele2 = randInt(0, 1);
+    }
+    let new_gene = allele1 + allele2;
+    return new_gene;
+  }
+
+  breedGenes(parent1: number[], parent2: number[]): number[] {
+    let child_genes = [];
+    for (let i = 0; i < Math.min(parent1.length, parent2.length); i++) {
+      let gene = this.recombineGenes(parent1[i], parent2[i]);
+      child_genes.push(gene);
+    }
+    return child_genes;
+  }
+
+  breedFlowers(parent1: Flower, parent2: Flower): Flower {
+    if (parent1.species.id !== parent2.species.id) {
+      throw 'Parents of different species cannot breed';
+    }
+    let child_flower = {species: parent1.species, genes: this.breedGenes(parent1.genes, parent2.genes)};
+    return child_flower;
+  }
+
+  /*simulateBreedingPair(parent1: Flower, parent2: Flower): {[x: Color]: number[][]} {
+
+  }*/
 
   canHaveParent(childGenes: number[], parentGenes: number[]): boolean {
     if (parentGenes.length != childGenes.length) {

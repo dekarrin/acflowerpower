@@ -1,6 +1,7 @@
 import { Component, OnInit, DoCheck, ChangeDetectorRef } from '@angular/core';
 import { SpeciesService } from '../species.service';
-import { Flower, getFlowerColor, getDefaultFlower } from '../flower';
+import { Flower } from '../flower';
+import { FlowerService } from '../flower.service';
 import { Species } from '../species';
 import { Color } from '../color';
 
@@ -14,10 +15,15 @@ export class PhenotypeSelectorComponent implements OnInit {
   allFlowerSpecies: Species[];
   flower: Flower;
 
-  constructor(private cdr: ChangeDetectorRef, private speciesService: SpeciesService) { }
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private speciesService: SpeciesService,
+    private flowerService: FlowerService
+  ) { }
 
   ngOnInit(): void {
     this.getSpecies();
+    this.flower = this.flowerService.getDefaultFlower();
   }
 
   ngDoCheck(): void {
@@ -26,11 +32,10 @@ export class PhenotypeSelectorComponent implements OnInit {
 
   getSpecies(): void {
     this.allFlowerSpecies = this.speciesService.getAllSpecies();
-    this.flower = getDefaultFlower();
   }
 
   getColor(): Color {
-    return getFlowerColor(this.flower);
+    return this.flowerService.getFlowerColor(this.flower);
   }
 
   getColorClass(): string {

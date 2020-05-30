@@ -1,9 +1,9 @@
-import { SPECIES_ID_ROSE, SPECIES_ID_MUM, SPECIES_ID_LILY, SPECIES_ID_COSMO, SPECIES_ID_PANSY, SPECIES_ID_TULIP, SPECIES_ID_HYACINTH, SPECIES_ID_WINDFLOWER } from './species';
+import { SpeciesId } from '../species';
 
 import { Color } from '../color';
 
-export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]} = {
-  [SPECIES_ID_ROSE]: [
+export const PHENOTYPE_DEFINITIONS: {[key in SpeciesId]: Color[][][] | Color[][][][]} = {
+  [SpeciesId.Rose]: [
 		[
 			[
 				['white', 'white', 'white'],	// Rose 0-0-0-?
@@ -56,7 +56,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			]
 		]
 	],
-	[SPECIES_ID_COSMO]: [
+	[SpeciesId.Cosmo]: [
 		[
 			['white', 'white', 'white'],		// Cosmo 0-0-?
 			['yellow', 'yellow', 'white'],		// Cosmo 0-1-?
@@ -73,7 +73,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['black', 'black', 'red']			// Cosmo 2-2-?
 		]
 	],
-	[SPECIES_ID_LILY]: [
+	[SpeciesId.Lily]: [
 		[
 			['white', 'white', 'white'],		// Lily 0-0-?
 			['yellow', 'white', 'white'],		// Lily 0-1-?
@@ -90,7 +90,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['orange', 'orange', 'white']		// Lily 2-2-?
 		]
 	],
-	[SPECIES_ID_PANSY]: [
+	[SpeciesId.Pansy]: [
 		[
 			['white', 'white', 'blue'],			// Pansy 0-0-?
 			['yellow', 'yellow', 'blue'],		// Pansy 0-1-?
@@ -107,7 +107,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['orange', 'orange', 'purple']		// Pansy 2-2-?
 		]
 	],
-	[SPECIES_ID_HYACINTH]: [
+	[SpeciesId.Hyacinth]: [
 		[
 			['white', 'white', 'blue'],			// Hyacinth 0-0-?
 			['yellow', 'yellow', 'white'],		// Hyacinth 0-1-?
@@ -124,7 +124,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['purple', 'purple', 'purple']		// Hyacinth 2-2-?
 		]
 	],
-	[SPECIES_ID_TULIP]: [
+	[SpeciesId.Tulip]: [
 		[
 			['white', 'white', 'white'],		// Tulip 0-0-?
 			['yellow', 'yellow', 'white'],		// Tulip 0-1-?
@@ -141,7 +141,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['purple', 'purple', 'purple']		// Tulip 2-2-?
 		]
 	],
-	[SPECIES_ID_MUM]: [
+	[SpeciesId.Mum]: [
 		[
 			['white', 'white', 'purple'],		// Mum 0-0-?
 			['yellow', 'yellow', 'white'],		// Mum 0-1-?
@@ -158,7 +158,7 @@ export const PHENOTYPE_DEFINITIONS: {[key: number]: Color[][][] | Color[][][][]}
 			['green', 'green', 'red']			// Mum 2-2-?
 		]
 	],
-	[SPECIES_ID_WINDFLOWER]: [
+	[SpeciesId.Windflower]: [
 		[
 			['white', 'white', 'blue'],			// Windflower 0-0-?
 			['orange', 'orange', 'blue'],		// Windflower 0-1-?

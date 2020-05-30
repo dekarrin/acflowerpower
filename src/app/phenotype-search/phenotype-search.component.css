@@ -1,11 +1,3 @@
-.species-selector {
-  margin-right: 0.8em;
-}
-
 .genome-text {
   font-family: "Roboto Mono", monospace;
-}
-
-app-geneselector {
-  display: inline-block;
 }

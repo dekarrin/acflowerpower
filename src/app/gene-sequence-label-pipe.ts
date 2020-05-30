@@ -1,18 +1,21 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { SPECIES_DEFINITIONS } from './data/species';
+import { SpeciesService } from './species.service';
+import { SpeciesId } from './species';
 
 import { INVERT_LABELS } from './app-options';
 
 @Pipe({name: 'geneSequenceLabel'})
 export class GeneSequenceLabelPipe implements PipeTransform {
 
-  transform(value: number[] | string, speciesId: number): string {
-    let specOptions = SPECIES_DEFINITIONS.filter(s => s.id == speciesId);
-    if (specOptions.length < 1) {
+  constructor(private speciesService: SpeciesService) {}
+
+  transform(value: number[] | string, speciesId: SpeciesId): string {
+    let spec = this.speciesService.getSpecies(speciesId);
+    if (!spec) {
       return "<invalid species id: " + String(speciesId) + ">"
     }
-    let specGenes = specOptions[0].genes;
+    let specGenes = spec.genes;
 
     if (typeof value === 'string') {
       let parsed_val: number[] = [];

@@ -1,5 +1,5 @@
 <h3>Gene Selector</h3>
-<mat-form-field class="species-selector">
+<mat-form-field class="flower-selector-component">
   <mat-label>Species</mat-label>
   <mat-select [(ngModel)]="flower.species">
     <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>

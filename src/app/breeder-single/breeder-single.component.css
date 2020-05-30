@@ -1,0 +1,12 @@
+.parent-label {
+  font-size: small;
+  font-weight: 550;
+}
+
+.parent-selector {
+  display: inline-block;
+}
+
+.sim-not-started-message {
+  font-style: italic;
+}

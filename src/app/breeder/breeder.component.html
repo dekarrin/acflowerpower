@@ -1,1 +1,12 @@
-<p>breeder works!</p>
+<h2>Breeding Simulator</h2>
+
+<p>This is the flower breeding simulator. In this section you can select
+parents to breed together and then run the simulation to see what would happen.</p>
+
+<nav mat-tab-nav-bar>
+  <a mat-tab-link routerLink="single" routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">Single Pair</a>
+  <a mat-tab-link routerLink="multi" routerLinkActive #rla2="routerLinkActive" [active]="rla2.isActive">Multiple Pairs</a>
+  <a mat-tab-link routerLink="planner" routerLinkActive #rla3="routerLinkActive" [active]="rla3.isActive">Auto Planner</a>
+</nav>
+
+<router-outlet></router-outlet>

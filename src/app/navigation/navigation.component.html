@@ -2,7 +2,7 @@
   <span class="toolbar-title">AC FlowerPower</span>
   <span class="fill-remaining"></span>
   <div class="hide-on-small-width">
-    <a routerLink="/{{action}}" mat-button *ngFor="let action of actions">{{action | titlecase}}</a>
+    <a routerLink="/{{action}}" mat-button routerLinkActive="active-link" *ngFor="let action of actions">{{action | titlecase}}</a>
   </div>
   <div class="hide-on-medium-width">
     <button mat-icon-button [matMenuTriggerFor]="appMenu"><mat-icon>menu</mat-icon></button>

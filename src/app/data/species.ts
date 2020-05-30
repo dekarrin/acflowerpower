@@ -16,7 +16,7 @@ export const SPECIES_DEFINITIONS: Species[] = [
   {id: SPECIES_ID_LILY, name: "lily", namePlural: "lilies", genes: ["r", "y", "s"]},
   {id: SPECIES_ID_PANSY, name: "pansy", namePlural: "pansies", genes: ["r", "y", "w"]},
   {id: SPECIES_ID_HYACINTH, name: "hyacinth", namePlural: "hyacinths", genes: ["r", "y", "w"]},
-  {id: SPECIES_ID_TULIP, name: "tulip", namePlural: "tuplips", genes: ["r", "y", "s"]},
+  {id: SPECIES_ID_TULIP, name: "tulip", namePlural: "tulips", genes: ["r", "y", "s"]},
   {id: SPECIES_ID_MUM, name: "mum", namePlural: "mums", genes: ["r", "y", "w"]},
   {id: SPECIES_ID_WINDFLOWER, name: "windflower", namePlural: "windflowers", genes: ["r", "o", "w"]}
 ];

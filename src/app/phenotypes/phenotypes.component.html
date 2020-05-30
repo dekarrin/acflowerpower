@@ -1,66 +1,8 @@
 <h2>Flower Phenotypes</h2>
 
-<mat-tab-group>
-  <mat-tab label="Search">
-    <h3>Color Finder</h3>
-    <mat-form-field class="species-selector">
-      <mat-label>Species</mat-label>
-      <mat-select [(ngModel)]="searchSpecies">
-        <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+<nav mat-tab-nav-bar>
+  <a mat-tab-link routerLink="search" routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">Search</a>
+  <a mat-tab-link routerLink="selector" routerLinkActive #rla2="routerLinkActive" [active]="rla2.isActive">Select Genes</a>
+</nav>
 
-    <mat-form-field class="species-selector">
-      <mat-label>Color</mat-label>
-      <mat-select [(ngModel)]="searchColor">
-        <mat-option *ngFor="let c of allColors" [value]="c" [disabled]="!colorIsAvailable(c)">{{c | titlecase}}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <app-flower-icon [species]="searchSpecies" [color]="searchColor" size="medium"></app-flower-icon>
-    <mat-accordion multi="true">
-      <mat-expansion-panel (opened)="parent1Opened = true" (closed)="parent1Opened = false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>Parent #1</mat-panel-title>
-          <mat-panel-description *ngIf="!parent1Opened">(any)</mat-panel-description>
-        </mat-expansion-panel-header>
-        <app-flower-icon [species]="searchSpecies" [color]="getSearchParent1Color()" size="very-small"></app-flower-icon>
-        <app-geneselector [species]="searchSpecies" [(ngModel)]="searchParent1Genes"></app-geneselector>
-      </mat-expansion-panel>
-      <mat-expansion-panel (opened)="parent2Opened = true" (closed)="parent2Opened = false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>Parent #2</mat-panel-title>
-          <mat-panel-description *ngIf="!parent2Opened">(any)</mat-panel-description>
-        </mat-expansion-panel-header>
-        <app-flower-icon [species]="searchSpecies" [color]="getSearchParent2Color()" size="very-small"></app-flower-icon>
-        <app-geneselector [species]="searchSpecies" [(ngModel)]="searchParent2Genes"></app-geneselector>
-      </mat-expansion-panel>
-    </mat-accordion>
-    <h4>Matching Phenotypes</h4>
-    <mat-list *ngIf="colorIsAvailable(searchColor)">
-      <mat-list-item *ngFor="let genes of currentSearch()">
-        <app-flower-icon [species]="searchSpecies" [color]="searchColor" size="small"></app-flower-icon>
-        <span class="genome-text">{{genes | geneSequenceLabel:searchSpecies.id }}</span>&nbsp;&nbsp;({{genes | geneSequenceShorthand:searchSpecies.id}})
-      </mat-list-item>
-    </mat-list>
-    <mat-error *ngIf="!colorIsAvailable(searchColor)">No matches. {{searchSpecies.namePlural | titlecase }} can't be {{searchColor}}.</mat-error>
-    <mat-error *ngIf="colorIsAvailable(searchColor) && currentSearch().length < 1">No matches. The selected parents cannot have {{searchColor}} offspring.</mat-error>
-  </mat-tab>
-  <mat-tab label="Gene Selector">
-    <h3>Gene Selector</h3>
-    <mat-form-field class="species-selector">
-      <mat-label>Species</mat-label>
-      <mat-select [(ngModel)]="flower.species">
-        <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <ng-container *ngIf="flower.species">
-      <app-geneselector [species]="flower.species" [(ngModel)]="flower.genes"></app-geneselector>
-    </ng-container>
-    <h3>Phenotype</h3>
-    <h3 class="{{getColorClass()}}">{{getColor()}} {{flower.species.name}}</h3>
-    <br />
-
-    <app-flower-icon [species]="flower.species" [color]="getColor()" size="large"></app-flower-icon>
-  </mat-tab>
-</mat-tab-group>
+<router-outlet></router-outlet>

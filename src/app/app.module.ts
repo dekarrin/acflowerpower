@@ -25,6 +25,8 @@ import { GeneLabelPipe } from './gene-label-pipe';
 import { GeneSequenceLabelPipe } from './gene-sequence-label-pipe';
 import { GeneSequenceShorthandPipe } from './gene-sequence-shorthand-pipe';
 import { FlowerIconComponent } from './flower-icon/flower-icon.component';
+import { PhenotypeSelectorComponent } from './phenotype-selector/phenotype-selector.component';
+import { PhenotypeSearchComponent } from './phenotype-search/phenotype-search.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,9 @@ import { FlowerIconComponent } from './flower-icon/flower-icon.component';
     GeneLabelPipe,
     GeneSequenceLabelPipe,
     GeneSequenceShorthandPipe,
-    FlowerIconComponent
+    FlowerIconComponent,
+    PhenotypeSelectorComponent,
+    PhenotypeSearchComponent
   ],
   imports: [
     BrowserModule,

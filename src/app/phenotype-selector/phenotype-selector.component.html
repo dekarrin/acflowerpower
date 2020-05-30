@@ -1,0 +1,16 @@
+<h3>Gene Selector</h3>
+<mat-form-field class="species-selector">
+  <mat-label>Species</mat-label>
+  <mat-select [(ngModel)]="flower.species">
+    <mat-option *ngFor="let species of allFlowerSpecies" [value]="species">{{species.name | titlecase}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<ng-container *ngIf="flower.species">
+  <app-geneselector [species]="flower.species" [(ngModel)]="flower.genes"></app-geneselector>
+</ng-container>
+<h3>Phenotype</h3>
+<h3 class="{{getColorClass()}}">{{getColor()}} {{flower.species.name}}</h3>
+<br />
+
+<app-flower-icon [species]="flower.species" [color]="getColor()" size="large"></app-flower-icon>

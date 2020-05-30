@@ -3,6 +3,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GENE_ORDER, speciesHasGene, Species, getGeneDict } from '../species';
 import { LogService } from '../log.service';
 
+/*
+NOTE: the changes made in this controlvalueaccessor make angular very antsy.
+parent component must be notified of changes in its ngDoChanges() function or
+it may result in unclean state.
+*/
+
 @Component({
   selector: 'app-geneselector',
   templateUrl: './geneselector.component.html',

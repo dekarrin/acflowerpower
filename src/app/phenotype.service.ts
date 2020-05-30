@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-import { Species } from './species';
 import { Color } from './color';
 
 import { PHENOTYPE_DEFINITIONS } from './data/phenotypes';
@@ -10,6 +9,8 @@ import { PHENOTYPE_DEFINITIONS } from './data/phenotypes';
 })
 export class PhenotypeService {
 
+  private _indexedByColor: {[key: number]: {[K in Color]: [number[]]}};
+
   constructor() { }
 
   getAllIndexedByGene(): {[key: number]: any} {
@@ -17,6 +18,9 @@ export class PhenotypeService {
   }
 
   getAllIndexedByColor(): {[key: number]: {[K in Color]: [number[]]}} {
+    if (this._indexedByColor) {
+      return this._indexedByColor;
+    }
     let bySpecies = {};
     let phenotypeDefinitions = this.getAllIndexedByGene();
     for (let specId in phenotypeDefinitions) {
@@ -48,8 +52,18 @@ export class PhenotypeService {
       }
       bySpecies[specId] = colorsTable;
     }
+    this._indexedByColor = bySpecies;
     return bySpecies;
   }
 
-
+  getPossibleColors(speciesId: number): Color[] {
+    if (!this._indexedByColor) {
+      this.getAllIndexedByColor();
+    }
+    if (!(speciesId in this._indexedByColor)) {
+      return [];
+    }
+    let genesByColor = this._indexedByColor[speciesId];
+    return Object.keys(genesByColor) as Color[];
+  }
 }

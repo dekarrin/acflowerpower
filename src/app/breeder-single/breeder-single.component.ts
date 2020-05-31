@@ -53,7 +53,7 @@ export class BreederSingleComponent implements OnInit {
     this.getSpecies();
     this.species = this.flowerService.getDefaultFlower().species;
     this.parent1Genes = [0, 1, 0, 1]; //this.flowerService.getDefaultFlower().genes;
-    this.parent2Genes = [2, 1, 1, 2]; //this.flowerService.getDefaultFlower().genes;
+    this.parent2Genes = [2, 1, 1, 0]; //this.flowerService.getDefaultFlower().genes;
   }
 
   createNewWorker() {
@@ -145,7 +145,10 @@ export class BreederSingleComponent implements OnInit {
       countedRes.total = totalCount / trials;
       this.finalResults.push([c, countedRes]);
     }
-    this.finalResults.sort((x, y) => y[1] - x[1] < 0.000000001 ? x[0].localCompare(y[0]) : y[1] - x[1]);
+    for (let i = 0; i < this.finalResults.length; i++) {
+      this.logger.log(this.finalResults[i][0] + ": " + this.finalResults[i][1].total)
+    }
+    this.finalResults.sort((x, y) => Math.abs(y[1].total - x[1].total) < 0.0000001 ? x[0].localeCompare(y[0]) : y[1].total - x[1].total);
   }
 
 }

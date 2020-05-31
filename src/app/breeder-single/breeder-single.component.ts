@@ -141,11 +141,11 @@ export class BreederSingleComponent implements OnInit {
         totalCount += count;
         countedRes.subPercents.push([r, count / trials]);
       }
-      countedRes.subPercents.sort((x, y) => x[0].localeCompare(y[0]));
+      countedRes.subPercents.sort((x, y) => y[1] - x[1]);
       countedRes.total = totalCount / trials;
       this.finalResults.push([c, countedRes]);
     }
-    this.finalResults.sort((x, y) => x[1] - y[1] === 0 ? x[0].localCompare(y[0]) : x[1] - y[1]);
+    this.finalResults.sort((x, y) => y[1] - x[1] < 0.000000001 ? x[0].localCompare(y[0]) : y[1] - x[1]);
   }
 
 }

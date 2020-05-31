@@ -10,13 +10,39 @@
 <div class="parent-selector">
   <span class="parent-label">Parent #1:&nbsp;</span>
   <app-geneselector [species]="species" [(ngModel)]="parent1Genes"></app-geneselector>
+  <app-flower-icon [species]="species" [color]="getParent1Color()" size="small"></app-flower-icon>
 </div>
 <br />
 <div class="parent-selector">
   <span class="parent-label">Parent #2:&nbsp;</span>
   <app-geneselector [species]="species" [(ngModel)]="parent2Genes"></app-geneselector>
+  <app-flower-icon [species]="species" [color]="getParent2Color()" size="small"></app-flower-icon>
 </div>
 <br />
-<button mat-raised-button color="primary">Breed</button>
+<mat-form-field class="trials-field">
+  <mat-label>Trials</mat-label>
+  <input [(ngModel)]="trials" matInput/>
+</mat-form-field>
+<button mat-raised-button color="primary" (click)="simulate()">Breed</button>
 <h4>Results</h4>
-<span class="sim-not-started-message" *ngIf="!simulationComplete">Select parents to breed and hit "Breed" to begin the simulation.</span>
+<span class="sim-not-started-message" *ngIf="!simulationStarted">Select parents to breed and hit "Breed" to begin the simulation.</span>
+<mat-progress-bar *ngIf="simulationRunning" mode="determinate" [value]="simulationPercentComplete"></mat-progress-bar>
+<ng-container *ngIf="!simulationRunning && simulationStarted">
+<div *ngFor="let item of finalResults">
+  <h5>{{item[1].total * 100 | number : '1.2-2'}}% - {{item[0] | titlecase}}</h5>
+  <mat-list>
+    <mat-list-item *ngFor="let genePercents of item[1].subPercents">
+      <app-flower-icon [species]="species" [color]="getColor(genePercents[0])" size="small"></app-flower-icon>
+      <span class="genome-text">{{genePercents[0] | geneSequenceLabel:species.id }}</span>&nbsp;&nbsp;({{genePercents[0] | geneSequenceShorthand:species.id}})
+      &nbsp;&mdash;&nbsp; {{genePercents[1] * 100 | number : '1.2-2'}}%
+    </mat-list-item>
+  </mat-list>
+</div>
+<!--
+<mat-list *ngIf="colorIsAvailable(searchColor)">
+  <mat-list-item *ngFor="let genes of currentSearch()">
+    <app-flower-icon [species]="searchSpecies" [color]="searchColor" size="small"></app-flower-icon>
+    <span class="genome-text">{{genes | geneSequenceLabel:searchSpecies.id }}</span>&nbsp;&nbsp;({{genes | geneSequenceShorthand:searchSpecies.id}})
+  </mat-list-item>
+</mat-list>-->
+</ng-container>

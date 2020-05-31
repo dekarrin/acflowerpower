@@ -5,6 +5,8 @@ import { Color } from './color';
 import { PHENOTYPE_DEFINITIONS } from './data/phenotypes';
 import { SpeciesId } from './species';
 
+import { getColorByGenes } from './lib/breeding';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,12 +17,7 @@ export class PhenotypeService {
   constructor() { }
 
   getColorByGenes(speciesId: SpeciesId, genes: number[]): Color {
-    // WARNING: we are losing compile-time type-safety here.
-    let color: any = PHENOTYPE_DEFINITIONS[speciesId];
-    for (let i = 0; i < genes.length; i++) {
-      color = color[genes[i]];
-    }
-    return color;
+    return getColorByGenes(speciesId, genes);
   }
 
   speciesHasColor(speciesId: SpeciesId, color: Color) {

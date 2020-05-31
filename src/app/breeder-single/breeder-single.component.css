@@ -10,3 +10,12 @@
 .sim-not-started-message {
   font-style: italic;
 }
+
+.trials-field {
+  width: 7.0em;
+  margin-right: 0.8em;
+}
+
+.mat-progress-bar .mat-progress-bar-fill {
+  transition-duration: 90ms;
+}

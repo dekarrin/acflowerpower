@@ -52,8 +52,8 @@ export class BreederSingleComponent implements OnInit {
     }
     this.getSpecies();
     this.species = this.flowerService.getDefaultFlower().species;
-    this.parent1Genes = this.flowerService.getDefaultFlower().genes;
-    this.parent2Genes = this.flowerService.getDefaultFlower().genes;
+    this.parent1Genes = [0, 1, 0, 1]; //this.flowerService.getDefaultFlower().genes;
+    this.parent2Genes = [2, 1, 1, 2]; //this.flowerService.getDefaultFlower().genes;
   }
 
   createNewWorker() {

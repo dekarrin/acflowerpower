@@ -64,7 +64,7 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
   writeValue(value) {
     if (value) {
       let newValue: number[] = [];
-      for (let i = 0; i < 3 && i < value.length; i++) {
+      for (let i = 0; i < 4 && i < value.length; i++) {
         newValue.push(value[i]);
       }
       while (newValue.length < 3) {

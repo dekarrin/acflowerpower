@@ -92,7 +92,6 @@ export function simulateBreedingPairThreaded(parent1: Flower, parent2: Flower, t
   let startTime = new Date().getTime();
   for (let i = 0; i < trials; i++) {
     if (!shouldContinueCallback()) {
-      console.log("STOP1");
       stoppedCallback();
       return;
     }
@@ -107,8 +106,6 @@ export function simulateBreedingPairThreaded(parent1: Flower, parent2: Flower, t
     }
     resultsTable[color][idx]++;
     if (!shouldContinueCallback()) {
-
-      console.log("STOP2");
       stoppedCallback();
       return;
     }

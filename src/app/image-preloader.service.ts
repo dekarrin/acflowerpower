@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { SpeciesService } from './species.service';
 import { PhenotypeService } from './phenotype.service';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class ImagePreloaderService {
 
   static readonly IMAGE_ROOT: string = 'assets/images';
 
-  constructor(private speciesService: SpeciesService, private phenotypeService: PhenotypeService) { }
+  constructor(private speciesService: SpeciesService, private phenotypeService: PhenotypeService, private logger: LogService) { }
 
   preload(paths: string[]): Observable<HTMLImageElement> {
     return Observable.create(function (observer) {

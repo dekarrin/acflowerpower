@@ -29,6 +29,11 @@ export class SpeciesService {
     return null;
   }
 
+  getAllSpeciesIds(): SpeciesId[] {
+    let specs = SPECIES_DEFINITIONS.map(x => x.id);
+    return specs;
+  }
+
   getAllSpecies(): Species[] {
     return SPECIES_DEFINITIONS;
   }

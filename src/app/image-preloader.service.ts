@@ -40,4 +40,37 @@ export class ImagePreloaderService {
     paths.push(ImagePreloaderService.IMAGE_ROOT + '/roses/rose-gold.png')
     return this.preload(paths);
   }
+
+  preloadFlowersAsync(nextCallback, completeCallback): number {
+    let species = this.speciesService.getAllSpecies();
+    let paths = [];
+    // get all valid breeding species phenotypes and preload them
+    for (let i = 0; i < species.length; i++) {
+      let speciesPath = ImagePreloaderService.IMAGE_ROOT + '/' + species[i].namePlural + '/' + species[i].name + '-';
+      let colors = this.phenotypeService.getPossibleColors(species[i].id);
+      for (let j = 0; j < colors.length; j++) {
+        let fullPath = speciesPath + colors[j] + '.png';
+        paths.push(fullPath);
+      }
+    }
+    // also add gold rose because it will not be added above due to not being a valid breeding color.
+    paths.push(ImagePreloaderService.IMAGE_ROOT + '/roses/rose-gold.png')
+    return this.preloadAsync(paths, nextCallback, completeCallback);
+  }
+
+  // for older browsers that dont support workers; load 1 image then
+  preloadAsync(paths: string[], nextCallback, completeCallback): number {
+    let i = 0;
+    let timer = setInterval(function() {
+      let preloaded = new Image();
+      preloaded.src = paths[i];
+      nextCallback(preloaded);
+      i++;
+      if (i >= paths.length) {
+        clearInterval(timer);
+        completeCallback();
+      }
+    }, 10);
+    return timer;
+  }
 }

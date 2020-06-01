@@ -34,8 +34,6 @@ export class BreederSingleComponent implements OnInit {
 
   trials: number = 10000;
 
-  seedFlowers: {[K in SpeciesId]?: Flower[]};
-
   private worker;
   private altWorkerTimer;
 
@@ -52,7 +50,6 @@ export class BreederSingleComponent implements OnInit {
     } else {
       this.logger.log("ERROR: web workers are unsupported; will not be as performant");
     }
-    this.getSeedFlowers();
     this.getSpecies();
     this.species = this.flowerService.getDefaultFlower().species;
     this.parent1Genes = this.flowerService.getDefaultFlower().genes;
@@ -75,22 +72,6 @@ export class BreederSingleComponent implements OnInit {
 
   getSpecies(): void {
     this.allFlowerSpecies = this.speciesService.getAllSpecies();
-  }
-
-  getSeedFlowers(): void {
-    this.seedFlowers = {};
-    let specs = this.speciesService.getAllSpeciesIds();
-    let owner = this;
-    for (let i = 0; i < specs.length; i++) {
-      let id = specs[i];
-      let flowers = this.flowerService.getSeedFlowers(id);
-      flowers.sort((x, y) => {
-        let xColor = this.flowerService.getFlowerColor(x);
-        let yColor = this.flowerService.getFlowerColor(y);
-        return xColor.localeCompare(yColor);
-      });
-      this.seedFlowers[id] = flowers;
-    }
   }
 
   getParent1Color(): Color {

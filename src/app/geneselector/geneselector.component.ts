@@ -1,7 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { GENE_ORDER, speciesHasGene, Species, getGeneDict } from '../species';
+import { GENE_ORDER, speciesHasGene, Species, getGeneDict, SpeciesId } from '../species';
 import { LogService } from '../log.service';
+import { Flower } from '../flower';
+import { FlowerService } from '../flower.service';
+import { SpeciesService } from '../species.service';
+import { Color } from '../color';
 
 /*
 NOTE: the changes made in this controlvalueaccessor make angular very antsy.
@@ -46,11 +50,37 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
   geneSequence: string;
   selectedGenes: {[x: string]: number} = getGeneDict();
   geneLabels: string[];
+  seedFlowers: {[K in SpeciesId]?: Flower[]};
 
-  constructor(private logService: LogService) { }
+  constructor(
+    private logService: LogService,
+    private speciesService: SpeciesService,
+    private flowerService: FlowerService
+  ) { }
 
   ngOnInit(): void {
+    this.getSeedFlowers();
     this.geneLabels = GENE_ORDER;
+  }
+
+  getColorForFlower(f: Flower): Color {
+    return this.flowerService.getFlowerColor(f);
+  }
+
+  getSeedFlowers(): void {
+    this.seedFlowers = {};
+    let specs = this.speciesService.getAllSpeciesIds();
+    let owner = this;
+    for (let i = 0; i < specs.length; i++) {
+      let id = specs[i];
+      let flowers = this.flowerService.getSeedFlowers(id);
+      flowers.sort((x, y) => {
+        let xColor = this.flowerService.getFlowerColor(x);
+        let yColor = this.flowerService.getFlowerColor(y);
+        return xColor.localeCompare(yColor);
+      });
+      this.seedFlowers[id] = flowers;
+    }
   }
 
   registerOnChange(fn) {
@@ -86,6 +116,10 @@ export class GeneselectorComponent implements OnInit, ControlValueAccessor {
         this.geneSequence = seq;
       }
     }
+  }
+
+  setValueFromSeed(f: Flower) {
+    this.writeValue(f.genes);
   }
 
 

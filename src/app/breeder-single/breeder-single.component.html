@@ -11,13 +11,6 @@
   <span class="parent-label">Parent #1:&nbsp;</span>
   <app-geneselector [species]="species" [(ngModel)]="parent1Genes"></app-geneselector>
   <app-flower-icon [species]="species" [color]="getParent1Color()" size="small"></app-flower-icon>
-  <button mat-icon-button [matMenuTriggerFor]="seedMenu1" color="primary" [matMenuTriggerData]="{seeds: seedFlowers[species.id]}"><mat-icon>store</mat-icon></button>
-  <mat-menu #seedMenu1="matMenu">
-    <ng-template matMenuContent let-seeds="seeds">
-      <span mat-menu-item disabled>Seed Flowers</span>
-      <button mat-menu-item *ngFor="let f of seeds" (click)="setParentFromSeed(1, f)">{{getColorForFlower(f) | titlecase}} {{f.species.name | titlecase}}</button>
-    </ng-template>
-  </mat-menu>
 </div>
 <br />
 <div class="parent-selector">

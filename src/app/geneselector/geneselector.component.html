@@ -1,4 +1,5 @@
 <div class="gene-selector-row">
+  <button mat-icon-button [matMenuTriggerFor]="seedMenu" color="primary" [matMenuTriggerData]="{seeds: seedFlowers[species.id]}"><mat-icon>store</mat-icon></button>
   <ng-container *ngFor="let g of geneLabels">
     <mat-form-field class="gene-selector" *ngIf="hasGene(g)">
       <mat-label *ngIf="g === geneLabels[0]">Genes</mat-label>
@@ -17,3 +18,9 @@
 </mat-form-field>
 <!-- placing mat-error into the form field makes everything break. -->
 <mat-error *ngIf="geneSequence && !geneSequenceIsValid()">Not a valid gene sequence.</mat-error>
+<mat-menu #seedMenu="matMenu">
+  <ng-template matMenuContent let-seeds="seeds">
+    <span mat-menu-item disabled>Seed Flowers</span>
+    <button mat-menu-item *ngFor="let f of seeds" (click)="setValueFromSeed(f)">{{getColorForFlower(f) | titlecase}} {{f.species.name | titlecase}}</button>
+  </ng-template>
+</mat-menu>

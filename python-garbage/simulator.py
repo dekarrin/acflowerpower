@@ -2,7 +2,7 @@ import flower
 import itertools
 import pprint
 from enum import Enum, auto
-from typing import Any, Dict, List, Union, Sequence, Tuple
+from typing import Any, Dict, List, Union, Sequence, Tuple, Optional
 
 def simulate_breeding(f1, f2, trials=10000, print_results=True):
 	if print_results:
@@ -198,10 +198,21 @@ class DeterministicBreedResult:
 		self.p1_expected = p1.expected_steps
 		self.p2_expected = p2.expected_steps
 		self._genotypes: List[PossibleGenotype] = []
+		self._branches_by_phenotype: Optional[Dict[flower.Color, List[Tuple[float, flower.Flower]]]] = None
+
+	@property
+	def phenotypes(self) -> Dict[flower.Color, List[Tuple[float, flower.Flower]]]:
+		if self._branches_by_phenotype is None:
+			self._update_branches()
+		if self._branches_by_phenotype is not None:
+			return self._branches_by_phenotype
+		else:
+			raise ValueError("problem generating branches by phenotype")
 
 	def add_genotype(self, child: flower.Flower, percent_color: float, percent_parent: float) -> PossibleGenotype:
 		pg = PossibleGenotype(self, child, percent_color, percent_parent)
 		self._genotypes.append(pg)
+		self._branches_by_phenotype = None
 		return pg
 
 	def get_deterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
@@ -224,6 +235,15 @@ class DeterministicBreedResult:
 	@property
 	def p2(self) -> flower.Flower:
 		return self.parent2
+
+	def _update_branches(self):
+		branches: Dict[flower.Color, List[Tuple[float, flower.Flower]]] = {}
+		for g in genotypes:
+			c = g.child.get_color()
+			if c not in branches:
+				branches[c] = []
+			branches[c].append((g.percent_color, g.child))
+		self._branches_by_phenotype = branches
 
 
 def get_printable_tuple(t):
@@ -318,15 +338,18 @@ def execute_step(potential_breeders, target, depth):
 	print_genos(breeds)
 	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
 	print_genos(breeds)
-	#for b in breeds:
-	#	## this all assumes B_d; deterministic parent flowers
-	#	if is_deterministic_color(b):
-	#		# we already know that any dterministic color left is not in bp, so add it
-	#		step = PlanStep(StepType.BREED, {'p1': b['p1'], 'p2': b['p2']})
-	#		full_plan = bp_p1.plan + bp_p2.plan + [step]
-	#		potential_breeders.append(PotentialBreeder(b['child'], expected_steps, full_plan))
-	#	else:
-	#		## if everything in the phenotype is scored at 2, discard the entire path
+	for b in breeds:
+		## this all assumes B_d; deterministic parent flowers
+		if b.is_deterministic_color():
+			# we already know that any dterministic color left is not in bp, so add it
+			step = PlanStep(StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
+			full_plan = potential_breeders[b.result.p1].plan
+			full_plan += potential_breeders[b.result.p2].plan
+			full_plan += [step]
+			potential_breeders.append(PotentialBreeder(b['child'], expected_steps, full_plan))
+		else:
+			## if everything in the phenotype is scored at 2, discard the entire path
+			pass
 
 	return breeds
 

@@ -6,6 +6,9 @@
 /out-tsc
 # Only exists if Bazel was run
 /bazel-out
+*.pyc
+*.pyb
+__pycache__/*
 
 # dependencies
 /node_modules

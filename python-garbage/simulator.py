@@ -1,7 +1,7 @@
 import flower
+import planner
 import itertools
 import pprint
-from enum import Enum, auto
 from typing import Any, Dict, List, Union, Sequence, Tuple, Optional
 
 def simulate_breeding(f1, f2, trials=10000, print_results=True):
@@ -46,9 +46,6 @@ def quantize(num, factor):
 	return round(num * factor) / factor
 
 
-
-
-
 #simulate_breeding(r1, b0)
 #simulate_breeding(r1, b1)
 #simulate_breeding(r2, b1)
@@ -84,168 +81,6 @@ def get_num_turns_to_purple_hybrid_only(max_attempts=10000):
 			return breeds
 	return -1
 
-
-class StepType(Enum):
-	START = auto()
-	BREED = auto()
-	TEST = auto()
-
-class PlanStep:
-	def __init__(self, type: StepType, data: Dict[str, Any]):
-		self.type = type
-		self.data = data
-
-class PotentialBreeder:
-	def __init__(self, f: flower.Flower, expected_steps: float, plan: List[PlanStep]):
-		self.flower = f
-		self.expected_steps = expected_steps
-		self.plan = plan
-
-BreedResult = Union['DeterministicBreedResult', 'NondeterministicBreedResult']
-
-class PossibleGenotype:
-	def __init__(self, owner_result: 'DeterministicBreedResult', child: flower.Flower, percent_color: float, percent_parent: float):
-		self.child = child
-		self.score = 0
-		self.percent_parent = percent_parent
-		self.percent_color = percent_color
-		self.dist = 0
-		self.result = owner_result
-
-	def is_deterministic_color(self) -> bool:
-		return self.percent_color == 1.0
-
-	def is_deterministic_breed(self) -> bool:
-		return self.result.is_deterministic()
-
-	@property
-	def expected_steps(self) -> float:
-		return 1.0/self.percent_parent + max(self.result.p1_expected, self.result.p2_expected)
-
-	def get_print_tuple(self):
-		print_tuple = (
-			self.result.p1.shorthand(),
-			self.result.p2.shorthand(),
-			self.child.shorthand(),
-			self.percent_color,
-			self.score,
-			self.percent_parent,
-			self.dist
-		)
-		return print_tuple
-
-	def __str__(self) -> str:
-		return pprint.pformat(self.get_print_tuple())
-
-	def __eq__(self, other):
-		my_tuple = (
-			self.result.p1,
-			self.result.p2,
-			self.child,
-			self.percent_color,
-			self.score,
-			self.percent_parent,
-			self.dist
-		)
-		other_tuple = (
-			other.result.p1,
-			other.result.p2,
-			other.child,
-			other.percent_color,
-			other.score,
-			other.percent_parent,
-			other.dist
-		)
-		return my_tuple == other_tuple
-
-	def __hash__(self, other):
-		return hash((
-			self.result.p1,
-			self.result.p2,
-			self.child,
-			self.percent_color,
-			self.score,
-			self.percent_parent,
-			self.dist
-		))
-
-class NondeterministicBreedResult:
-	def __init__(self):
-		self._genotypes = []
-
-	def get_deterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if g.is_deterministic_color()]
-
-	def get_nondeterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if not g.is_deterministic_color()]
-
-	@property
-	def genotypes(self) -> List[PossibleGenotype]:
-		return self._genotypes
-
-	def is_deterministic(self) -> bool:
-		return False
-
-
-class DeterministicBreedResult:
-	def __init__(self, p1: PotentialBreeder, p2: PotentialBreeder):
-		"""Create a new deterministic breed result.
-		:param p1: the first parent.
-		:param p2: the second parent.
-		"""
-		self.parent1 = p1.flower
-		self.parent2 = p2.flower
-		self.p1_expected = p1.expected_steps
-		self.p2_expected = p2.expected_steps
-		self._genotypes: List[PossibleGenotype] = []
-		self._branches_by_phenotype: Optional[Dict[flower.Color, List[Tuple[float, flower.Flower]]]] = None
-
-	@property
-	def phenotypes(self) -> Dict[flower.Color, List[Tuple[float, flower.Flower]]]:
-		if self._branches_by_phenotype is None:
-			self._update_branches()
-		if self._branches_by_phenotype is not None:
-			return self._branches_by_phenotype
-		else:
-			raise ValueError("problem generating branches by phenotype")
-
-	def add_genotype(self, child: flower.Flower, percent_color: float, percent_parent: float) -> PossibleGenotype:
-		pg = PossibleGenotype(self, child, percent_color, percent_parent)
-		self._genotypes.append(pg)
-		self._branches_by_phenotype = None
-		return pg
-
-	def get_deterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if g.is_deterministic_color()]
-
-	def get_nondeterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if not g.is_deterministic_color()]
-
-	@property
-	def genotypes(self) -> List[PossibleGenotype]:
-		return self._genotypes
-
-	def is_deterministic(self) -> bool:
-		return True
-
-	@property
-	def p1(self) -> flower.Flower:
-		return self.parent1
-
-	@property
-	def p2(self) -> flower.Flower:
-		return self.parent2
-
-	def _update_branches(self):
-		branches: Dict[flower.Color, List[Tuple[float, flower.Flower]]] = {}
-		for g in genotypes:
-			c = g.child.get_color()
-			if c not in branches:
-				branches[c] = []
-			branches[c].append((g.percent_color, g.child))
-		self._branches_by_phenotype = branches
-
-
 def get_printable_tuple(t):
 	printed_items = []
 	for x in t:
@@ -273,35 +108,18 @@ def get_printable_map(m):
 def have_visited(flower):
 	return False
 
-def remove_cd_results_already_in_bp(res, bp):
-	"""Remove all deterministic-by-color results that are already in potential breeders (bp)
-	with score less or equal to expected)"""
-	new_res = []
-	for r in res:
-		if r.is_deterministic_color():
-			if r.child in bp:
-				if bp[r.child].expected_steps <= r.expected_steps:
-					# then dont add it
-					continue
-		new_res.append(r)
-	return new_res
-
-def is_deterministic_color(br):
-	"""Check if this breed result is deterministic by color; that is, in C_d)"""
-	return br['%color'] == 1.0
-
 def print_genos(genos):
 	pprint.pprint([x.get_print_tuple() for x in genos])
 	print()
 
 #state_stack = []
 
-def execute_step(potential_breeders, target, depth):
+def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreeder], target: flower.Flower, depth):
 	pairs = itertools.combinations_with_replacement([b.flower for b in potential_breeders.values()], 2)
 	breed_results = []
 	for p in pairs:
 		possible = p[0].get_possible_children_with(p[1])
-		br = DeterministicBreedResult(potential_breeders[p[0]], potential_breeders[p[1]])
+		br = planner.DeterministicBreedResult(potential_breeders[p[0]], potential_breeders[p[1]])
 		for c in possible:
 			child = c[0]
 			parent_percent = c[1]
@@ -334,19 +152,20 @@ def execute_step(potential_breeders, target, depth):
 			breeds.append(geno)
 
 	print_genos(breeds)
-	breeds = remove_cd_results_already_in_bp(breeds, potential_breeders)
+	breeds = planner.remove_cd_results_already_in_bp(breeds, potential_breeders)
 	print_genos(breeds)
 	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
 	print_genos(breeds)
+	#breeds = planner.remove_cnd_results_already_in_breeders(breeds, potential_breeders)
 	for b in breeds:
 		## this all assumes B_d; deterministic parent flowers
 		if b.is_deterministic_color():
-			# we already know that any dterministic color left is not in bp, so add it
-			step = PlanStep(StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
+			# we already know that any deterministic color left is not in bp, so add it
+			step = planner.PlanStep(planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
 			full_plan = potential_breeders[b.result.p1].plan
 			full_plan += potential_breeders[b.result.p2].plan
 			full_plan += [step]
-			potential_breeders.append(PotentialBreeder(b['child'], expected_steps, full_plan))
+			potential_breeders[b.child] = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
 		else:
 			## if everything in the phenotype is scored at 2, discard the entire path
 			pass
@@ -356,9 +175,12 @@ def execute_step(potential_breeders, target, depth):
 target = flower.Flower(flower.Species.PANSY, 2, 0, 2)
 
 starter_breeders = {
-	flower.WhiteSeedPansy: PotentialBreeder(flower.WhiteSeedPansy, 0, [PlanStep(StepType.START, {})]),
-	flower.YellowSeedPansy: PotentialBreeder(flower.YellowSeedPansy, 0, [PlanStep(StepType.START, {})]),
-	flower.RedSeedPansy: PotentialBreeder(flower.RedSeedPansy, 0, [PlanStep(StepType.START, {})])
+	flower.WhiteSeedPansy: planner.PotentialBreeder(
+		flower.WhiteSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})]),
+	flower.YellowSeedPansy: planner.PotentialBreeder(
+		flower.YellowSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})]),
+	flower.RedSeedPansy: planner.PotentialBreeder(
+		flower.RedSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})])
 }
 
 br = execute_step(starter_breeders, target, 0)

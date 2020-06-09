@@ -167,31 +167,41 @@ def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreede
 	print("REMOVED Cd ALREADY PRESENT:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
-	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
-	print("SORTED:")
-	print_genos(breeds)
-	print_breeders(potential_breeders, tabs=1)
+
+	# add all deterministics to Bp immediately; they may knock out Cnds
+	# in next step
+
+	## this all assumes B_d; deterministic parent flowers
+	for b in [br for br in breeds if br.is_deterministic_color()]:
+		# we already know that any deterministic color left is not in bp, so add it
+		step = planner.PlanStep(planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
+		full_plan = potential_breeders[b.result.p1].plan
+		full_plan += potential_breeders[b.result.p2].plan
+		full_plan += [step]
+		potential_breeders[b.child] = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
+
+	print("(added Cd to Bp)")
+
 	breeds = planner.remove_cnd_breeds_already_in_bp(breeds, potential_breeders)
 	print("REMOVED Cnd ALREADY PRESENT:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
-	for b in breeds:
-		## this all assumes B_d; deterministic parent flowers
-		if b.is_deterministic_color():
-			# we already know that any deterministic color left is not in bp, so add it
-			step = planner.PlanStep(planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
-			full_plan = potential_breeders[b.result.p1].plan
-			full_plan += potential_breeders[b.result.p2].plan
-			full_plan += [step]
-			potential_breeders[b.child] = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
-		else:
-			## if everything in the phenotype is scored at 2, discard the entire path
-			pass
+
+
+
+	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
+	print("SORTED:")
+	print_genos(breeds)
+	print_breeders(potential_breeders, tabs=1)
 
 	return breeds
 
 target = flower.Flower(flower.Species.PANSY, 2, 0, 2)
 
+
+# need way to represent both Bd and Bnd in potential breeders map.
+# might need to extend to a new class
+x -> {'deterministic': x, 'non-deterministic': y}
 
 starter_breeders = {
 	flower.WhiteSeedPansy: planner.PotentialBreeder(

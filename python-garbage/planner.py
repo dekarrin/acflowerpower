@@ -153,11 +153,11 @@ class DeterministicBreedResult:
 		else:
 			return geno_list[0]
 
-	def get_deterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if g.is_deterministic_color()]
+	def get_deterministic_genotypes(self) -> Sequence[PossibleGenotype]:
+		return [g for g in self.genotypes if g.is_deterministic_color()]
 
-	def get_nondeterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if not g.is_deterministic_color()]
+	def get_nondeterministic_genotypes(self) -> Sequence[PossibleGenotype]:
+		return [g for g in self.genotypes if not g.is_deterministic_color()]
 
 	@property
 	def genotypes(self) -> List[PossibleGenotype]:

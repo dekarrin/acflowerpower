@@ -110,6 +110,15 @@ def have_visited(flower):
 
 def print_genos(genos):
 	pprint.pprint([x.get_print_tuple() for x in genos])
+	print("(total: " + str(len(genos)) + ")")
+	print()
+
+def print_breeders(breeders, tabs=0):
+	tab_before = "  " * tabs
+	print(tab_before + "(breeders:)")
+	for fl in breeders:
+		br = breeders[fl]
+		print("{:s}({:s}, steps={:.3f})".format(tab_before, br.flower.shorthand(), br.expected_steps))
 	print()
 
 #state_stack = []
@@ -151,12 +160,21 @@ def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreede
 		for geno in res.genotypes:
 			breeds.append(geno)
 
+	print("INITIAL:")
 	print_genos(breeds)
-	breeds = planner.remove_cd_results_already_in_bp(breeds, potential_breeders)
+	print_breeders(potential_breeders, tabs=1)
+	breeds = planner.remove_cd_breeds_already_in_bp(breeds, potential_breeders)
+	print("REMOVED Cd ALREADY PRESENT:")
 	print_genos(breeds)
+	print_breeders(potential_breeders, tabs=1)
 	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
+	print("SORTED:")
 	print_genos(breeds)
-	#breeds = planner.remove_cnd_results_already_in_breeders(breeds, potential_breeders)
+	print_breeders(potential_breeders, tabs=1)
+	breeds = planner.remove_cnd_breeds_already_in_bp(breeds, potential_breeders)
+	print("REMOVED Cnd ALREADY PRESENT:")
+	print_genos(breeds)
+	print_breeders(potential_breeders, tabs=1)
 	for b in breeds:
 		## this all assumes B_d; deterministic parent flowers
 		if b.is_deterministic_color():
@@ -173,6 +191,7 @@ def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreede
 	return breeds
 
 target = flower.Flower(flower.Species.PANSY, 2, 0, 2)
+
 
 starter_breeders = {
 	flower.WhiteSeedPansy: planner.PotentialBreeder(

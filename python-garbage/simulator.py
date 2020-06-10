@@ -2,7 +2,8 @@ import flower
 import planner
 import itertools
 import pprint
-from typing import Any, Dict, List, Union, Sequence, Tuple, Optional
+from typing import Dict
+
 
 def simulate_breeding(f1, f2, trials=10000, print_results=True):
 	if print_results:
@@ -31,11 +32,11 @@ def simulate_breeding(f1, f2, trials=10000, print_results=True):
 		full_results[c] = result_set
 	if print_results:
 		print("Results:")
-		result_keys = sorted(full_results.keys(), key=lambda x:x.name)
+		result_keys = sorted(full_results.keys(), key=lambda x: x.name)
 		for c in result_keys:
 			color = c.name
 			color_results = full_results[c]
-			print (color + " - {:.2%}".format(color_results['total']))
+			print(color + " - {:.2%}".format(color_results['total']))
 			for v in sorted(color_results['variants']):
 				print(" * " + v[0] + ": {:.2%}".format(v[1]))
 		print()
@@ -46,33 +47,34 @@ def quantize(num, factor):
 	return round(num * factor) / factor
 
 
-#simulate_breeding(r1, b0)
-#simulate_breeding(r1, b1)
-#simulate_breeding(r2, b1)
-#simulate_breeding(r2, b0)
+# simulate_breeding(r1, b0)
+# simulate_breeding(r1, b1)
+# simulate_breeding(r2, b1)
+# simulate_breeding(r2, b0)
 
-def get_num_turns_to_purple(max_attempts=10000):
+def get_num_turns_to_purple(b0, r1, max_attempts=10000):
 	blue_flower = b0
 	red_flower = r1
 	breeds = 0
-	got = False
-	#print("0: Combining " + str(red_flower) + " + " + str(blue_flower))
+	# print("0: Combining " + str(red_flower) + " + " + str(blue_flower))
 	for x in range(max_attempts):
 		new_flower = blue_flower.breed_with(red_flower)
 		breeds += 1
 		if new_flower.get_color() == flower.Color.PURPLE:
-			#print(str(breeds) + ": Got purple")
+			# print(str(breeds) + ": Got purple")
 			return breeds
 		elif new_flower.get_color() == flower.Color.RED:
 			red_flower = new_flower
-			#print(str(breeds) + ": Got new red; now combining " + str(red_flower) + " + " + str(blue_flower))
+			# print(str(breeds) + ": Got new red; now combining " +
+			# str(red_flower) + " + " + str(blue_flower))
 		elif new_flower.get_color() == flower.Color.BLUE:
 			blue_flower = new_flower
-			#print(str(breeds) + ": Got new blue; now combining " + str(red_flower) + " + " + str(blue_flower))
+			# print(str(breeds) + ": Got new blue; now combining " +
+			# str(red_flower) + " + " + str(blue_flower))
 	return -1
 
-def get_num_turns_to_purple_hybrid_only(max_attempts=10000):
-	red_flower = r1
+
+def get_num_turns_to_purple_hybrid_only(r1, max_attempts=10000):
 	breeds = 0
 	for x in range(max_attempts):
 		new_flower = r1.breed_with(r1)
@@ -80,6 +82,7 @@ def get_num_turns_to_purple_hybrid_only(max_attempts=10000):
 		if new_flower.get_color() == flower.Color.PURPLE:
 			return breeds
 	return -1
+
 
 def get_printable_tuple(t):
 	printed_items = []
@@ -89,6 +92,7 @@ def get_printable_tuple(t):
 		else:
 			printed_items.append(x)
 	return tuple(printed_items)
+
 
 def get_printable_map(m):
 	printed_items = {}
@@ -105,30 +109,41 @@ def get_printable_map(m):
 		printed_items[newk] = newv
 	return printed_items
 
+
 def have_visited(flower):
 	return False
+
 
 def print_genos(genos):
 	pprint.pprint([x.get_print_tuple() for x in genos])
 	print("(total: " + str(len(genos)) + ")")
 	print()
 
+
 def print_breeders(breeders, tabs=0):
 	tab_before = "  " * tabs
 	print(tab_before + "(breeders:)")
 	for fl in breeders:
 		br = breeders[fl]
-		print("{:s}({:s}, steps={:.3f})".format(tab_before, br.flower.shorthand(), br.expected_steps))
+		fmt = "{:s}({:s}, steps={:.3f})"
+		print(fmt.format(tab_before, br.flower.shorthand(), br.expected_steps))
 	print()
 
-#state_stack = []
+# state_stack = []
 
-def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreeder], target: flower.Flower, depth):
-	pairs = itertools.combinations_with_replacement([b.flower for b in potential_breeders.values()], 2)
+
+def execute_step(
+	potential_breeders: Dict[flower.Flower, planner.PotentialBreeder],
+	target: flower.Flower, depth
+):
+	pairs = itertools.combinations_with_replacement(
+		[b.flower for b in potential_breeders.values()], 2)
 	breed_results = []
 	for p in pairs:
 		possible = p[0].get_possible_children_with(p[1])
-		br = planner.DeterministicBreedResult(potential_breeders[p[0]], potential_breeders[p[1]])
+		pot_p1 = potential_breeders[p[0]]
+		pot_p2 = potential_breeders[p[1]]
+		br = planner.DeterministicBreedResult(pot_p1, pot_p2)
 		for c in possible:
 			child = c[0]
 			parent_percent = c[1]
@@ -171,14 +186,18 @@ def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreede
 	# add all deterministics to Bp immediately; they may knock out Cnds
 	# in next step
 
-	## this all assumes B_d; deterministic parent flowers
+	# this all assumes B_d; deterministic parent flowers
 	for b in [br for br in breeds if br.is_deterministic_color()]:
 		# we already know that any deterministic color left is not in bp, so add it
-		step = planner.PlanStep(planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2})
+		step = planner.PlanStep(
+			planner.StepType.BREED,
+			{'p1': b.result.p1, 'p2': b.result.p2}
+		)
 		full_plan = potential_breeders[b.result.p1].plan
 		full_plan += potential_breeders[b.result.p2].plan
 		full_plan += [step]
-		potential_breeders[b.child] = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
+		pot = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
+		potential_breeders[b.child] = pot
 
 	print("(added Cd to Bp)")
 
@@ -187,21 +206,24 @@ def execute_step(potential_breeders: Dict[flower.Flower, planner.PotentialBreede
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
 
-
-
-	breeds = sorted(breeds, key=lambda x: (x.percent_color, x.score, x.percent_color), reverse=True)
+	breeds = sorted(
+		breeds,
+		key=lambda x: (x.percent_color, x.score, x.percent_color),
+		reverse=True
+	)
 	print("SORTED:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
 
 	return breeds
 
+
 target = flower.Flower(flower.Species.PANSY, 2, 0, 2)
 
 
 # need way to represent both Bd and Bnd in potential breeders map.
 # might need to extend to a new class
-x -> {'deterministic': x, 'non-deterministic': y}
+# x -> {'deterministic': x, 'non-deterministic': y}
 
 starter_breeders = {
 	flower.WhiteSeedPansy: planner.PotentialBreeder(

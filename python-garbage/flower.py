@@ -3,6 +3,7 @@ import random
 
 InvertWhiteGeneNotation = True
 
+
 class Color(Enum):
 	WHITE = auto()
 	PURPLE = auto()
@@ -13,6 +14,7 @@ class Color(Enum):
 	BLACK = auto()
 	BLUE = auto()
 	GREEN = auto()
+
 
 class Species(Enum):
 	ROSE = auto()
@@ -101,11 +103,14 @@ class Flower:
 		return line
 
 	def __str__(self):
-		line = '<' + self.get_color().name + ' ' + self.get_species().name + ' ' + self.get_gene_sequence() + '>'
+		line = '<' + self.get_color().name + ' ' + self.get_species().name + ' '
+		line += self.get_gene_sequence() + '>'
 		return line
 
 	def __eq__(self, other):
-		return (self.get_species(), self.get_gene_sequence()) == (other.get_species(), other.get_gene_sequence())
+		my_tuple = (self.get_species(), self.get_gene_sequence())
+		other_tuple = (other.get_species(), other.get_gene_sequence())
+		return my_tuple == other_tuple
 
 	def __hash__(self):
 		return hash((self.get_species(), self.get_gene_sequence()))
@@ -122,7 +127,8 @@ class Flower:
 
 	def breed_with(self, other):
 		if other._species != self._species:
-			raise ValueError("{:s} cannot breed with {:s}".format(self._species, other._species))
+			msg = "{:s} cannot breed with {:s}"
+			raise ValueError(msg.format(self._species, other._species))
 		new_genes = []
 		for own_gene, other_gene in zip(self._genes, other._genes):
 			if own_gene == 0:
@@ -146,12 +152,12 @@ class Flower:
 
 	def distance_from(self, other):
 		if other._species != self._species:
-			raise ValueError("{:s} cannot breed with {:s}".format(self._species, other._species))
+			msg = "{:s} cannot breed with {:s}"
+			raise ValueError(msg.format(self._species, other._species))
 		total_dist = 0
 		for own_gene, other_gene in zip(self._genes, other._genes):
 			total_dist += abs(own_gene - other_gene)
 		return total_dist
-
 
 	def shorthand(self):
 		short = ""
@@ -188,7 +194,8 @@ class Flower:
 	def get_possible_children_with(self, other):
 		"""Return (child, percent of parents, percent of color)"""
 		if other._species != self._species:
-			raise ValueError("{:s} cannot breed with {:s}".format(self._species, other._species))
+			msg = "{:s} cannot breed with {:s}"
+			raise ValueError(msg.format(self._species, other._species))
 		gene_probabilities = []
 		for own_gene, other_gene in zip(self._genes, other._genes):
 			possible_genes = []
@@ -214,7 +221,8 @@ class Flower:
 				elif other_gene == 2:
 					possible_genes = [(1.0, 2)]
 			if len(possible_genes) < 1:
-				raise ValueError("couldn't breed genes {:d} and {:d} together".format(own_gene, other_gene))
+				msg = "couldn't breed genes {:d} and {:d} together"
+				raise ValueError(msg.format(own_gene, other_gene))
 			gene_probabilities.append(possible_genes)
 		possible_children = []
 		color_probs = {}
@@ -242,8 +250,11 @@ class Flower:
 					color_probs[child.get_color()] += total_prob
 		children_with_color_probs = []
 		for c in possible_children:
-			children_with_color_probs.append((c[0], c[1], c[1]/color_probs[c[0].get_color()]))
+			children_with_color_probs.append(
+				(c[0], c[1], c[1]/color_probs[c[0].get_color()])
+			)
 		return children_with_color_probs
+
 
 WhiteSeedRose			= Flower(Species.ROSE, 0, 0, 1, 0)
 YellowSeedRose			= Flower(Species.ROSE, 0, 2, 0, 0)
@@ -271,30 +282,31 @@ OrangeSeedWindflower	= Flower(Species.WINDFLOWER, 0, 2, 0)
 RedSeedWindflower		= Flower(Species.WINDFLOWER, 2, 0, 0)
 
 SEED_FLOWERS = [
-WhiteSeedRose,
-YellowSeedRose,
-RedSeedRose,
-WhiteSeedCosmo,
-YellowSeedCosmo,
-RedSeedCosmo,
-WhiteSeedLily,
-YellowSeedLily,
-RedSeedLily,
-WhiteSeedPansy,
-YellowSeedPansy,
-RedSeedPansy,
-WhiteSeedHyacinth,
-YellowSeedHyacinth,
-RedSeedHyacinth,
-WhiteSeedTuplip,
-YellowSeedTuplip,
-RedSeedTulip,
-WhiteSeedMum,
-YellowSeedMum,
-RedSeedMum,
-WhiteSeedWindflower,
-OrangeSeedWindflower,
-RedSeedWindflower]
+	WhiteSeedRose,
+	YellowSeedRose,
+	RedSeedRose,
+	WhiteSeedCosmo,
+	YellowSeedCosmo,
+	RedSeedCosmo,
+	WhiteSeedLily,
+	YellowSeedLily,
+	RedSeedLily,
+	WhiteSeedPansy,
+	YellowSeedPansy,
+	RedSeedPansy,
+	WhiteSeedHyacinth,
+	YellowSeedHyacinth,
+	RedSeedHyacinth,
+	WhiteSeedTuplip,
+	YellowSeedTuplip,
+	RedSeedTulip,
+	WhiteSeedMum,
+	YellowSeedMum,
+	RedSeedMum,
+	WhiteSeedWindflower,
+	OrangeSeedWindflower,
+	RedSeedWindflower
+]
 
 
 _GENE_LABELS = {
@@ -312,19 +324,19 @@ _PHENOTYPES = {
 	Species.ROSE: [
 		[
 			[
-				[Color.WHITE, Color.WHITE, Color.WHITE],	# Rose 0-0-0-?
-				[Color.WHITE, Color.WHITE, Color.WHITE],	# Rose 0-0-1-?
-				[Color.PURPLE, Color.PURPLE, Color.PURPLE]	# Rose 0-0-2-?
+				[Color.WHITE, Color.WHITE, Color.WHITE],	 # Rose 0-0-0-?
+				[Color.WHITE, Color.WHITE, Color.WHITE],	 # Rose 0-0-1-?
+				[Color.PURPLE, Color.PURPLE, Color.PURPLE]	 # Rose 0-0-2-?
 			],
 			[
-				[Color.YELLOW, Color.YELLOW, Color.YELLOW], # Rose 0-1-0-?
-				[Color.WHITE, Color.WHITE, Color.WHITE],	# Rose 0-1-1-?
-				[Color.PURPLE, Color.PURPLE, Color.PURPLE]	# Rose 0-1-2-?
+				[Color.YELLOW, Color.YELLOW, Color.YELLOW],  # Rose 0-1-0-?
+				[Color.WHITE, Color.WHITE, Color.WHITE],	 # Rose 0-1-1-?
+				[Color.PURPLE, Color.PURPLE, Color.PURPLE]	 # Rose 0-1-2-?
 			],
 			[
-				[Color.YELLOW, Color.YELLOW, Color.YELLOW],	# Rose 0-2-0-?
-				[Color.YELLOW, Color.YELLOW, Color.YELLOW],	# Rose 0-2-1-?
-				[Color.WHITE, Color.WHITE, Color.WHITE]		# Rose 0-2-2-?
+				[Color.YELLOW, Color.YELLOW, Color.YELLOW],	 # Rose 0-2-0-?
+				[Color.YELLOW, Color.YELLOW, Color.YELLOW],	 # Rose 0-2-1-?
+				[Color.WHITE, Color.WHITE, Color.WHITE]		 # Rose 0-2-2-?
 			]
 		],
 		[
@@ -334,31 +346,31 @@ _PHENOTYPES = {
 				[Color.RED, Color.PINK, Color.PURPLE]		# Rose 1-0-2-?
 			],
 			[
-				[Color.ORANGE, Color.YELLOW, Color.YELLOW], # Rose 1-1-0-?
-				[Color.RED, Color.PINK, Color.WHITE],		# Rose 1-1-1-?
-				[Color.RED, Color.PINK, Color.PURPLE]		# Rose 1-1-2-?
+				[Color.ORANGE, Color.YELLOW, Color.YELLOW],  # Rose 1-1-0-?
+				[Color.RED, Color.PINK, Color.WHITE],		 # Rose 1-1-1-?
+				[Color.RED, Color.PINK, Color.PURPLE]		 # Rose 1-1-2-?
 			],
 			[
-				[Color.ORANGE, Color.YELLOW, Color.YELLOW],	# Rose 1-2-0-?
-				[Color.ORANGE, Color.YELLOW, Color.YELLOW],	# Rose 1-2-1-?
-				[Color.RED, Color.PINK, Color.WHITE]		# Rose 1-2-2-?
+				[Color.ORANGE, Color.YELLOW, Color.YELLOW],	 # Rose 1-2-0-?
+				[Color.ORANGE, Color.YELLOW, Color.YELLOW],	 # Rose 1-2-1-?
+				[Color.RED, Color.PINK, Color.WHITE]		 # Rose 1-2-2-?
 			]
 		],
 		[
 			[
-				[Color.BLACK, Color.RED, Color.PINK],		# Rose 2-0-0-?
-				[Color.BLACK, Color.RED, Color.PINK],		# Rose 2-0-1-?
-				[Color.BLACK, Color.RED, Color.PINK]		# Rose 2-0-2-?
+				[Color.BLACK, Color.RED, Color.PINK],		 # Rose 2-0-0-?
+				[Color.BLACK, Color.RED, Color.PINK],		 # Rose 2-0-1-?
+				[Color.BLACK, Color.RED, Color.PINK]		 # Rose 2-0-2-?
 			],
 			[
-				[Color.ORANGE, Color.ORANGE, Color.YELLOW], # Rose 2-1-0-?
-				[Color.RED, Color.RED, Color.WHITE],		# Rose 2-1-1-?
-				[Color.BLACK, Color.RED, Color.PURPLE]		# Rose 2-1-2-?
+				[Color.ORANGE, Color.ORANGE, Color.YELLOW],  # Rose 2-1-0-?
+				[Color.RED, Color.RED, Color.WHITE],		 # Rose 2-1-1-?
+				[Color.BLACK, Color.RED, Color.PURPLE]		 # Rose 2-1-2-?
 			],
 			[
-				[Color.ORANGE, Color.ORANGE, Color.YELLOW],	# Rose 2-2-0-?
-				[Color.ORANGE, Color.ORANGE, Color.YELLOW],	# Rose 2-2-1-?
-				[Color.BLUE, Color.RED, Color.WHITE]		# Rose 2-2-2-?
+				[Color.ORANGE, Color.ORANGE, Color.YELLOW],	 # Rose 2-2-0-?
+				[Color.ORANGE, Color.ORANGE, Color.YELLOW],	 # Rose 2-2-1-?
+				[Color.BLUE, Color.RED, Color.WHITE]		 # Rose 2-2-2-?
 			]
 		]
 	],
@@ -482,4 +494,3 @@ _PHENOTYPES = {
 		]
 	],
 }
-	

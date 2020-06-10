@@ -1,6 +1,6 @@
 import flower
 from enum import Enum, auto
-from typing import Dict, Any, List, Union, Sequence, Tuple, Optional
+from typing import Dict, Any, List, Union, Sequence, Tuple, Optional, Iterable
 import pprint
 
 
@@ -9,21 +9,47 @@ class StepType(Enum):
 	BREED = auto()
 	TEST = auto()
 
+
 class PlanStep:
 	def __init__(self, type: StepType, data: Dict[str, Any]):
 		self.type = type
 		self.data = data
 
+
 class PotentialBreeder:
-	def __init__(self, f: flower.Flower, expected_steps: float, plan: List[PlanStep]):
+	def __init__(
+		self, f: flower.Flower, expected_steps: float, plan: List[PlanStep]
+	):
 		self.flower = f
 		self.expected_steps = expected_steps
 		self.plan = plan
 
+
+BreederProbTree = Tuple[float, PotentialBreeder]
+
+
+class BreederSet:
+	"""Special case of a set, this contains all of the PotentialBreeders than
+	can be used for breeding. Due to the fact that deterministic and
+	nondeterministic breeders may be included, but that there can only be one
+	deterministic breeder for each flower, a simple list or set is insufficient.
+	"""
+
+	def __init__(self, initial_breeders: Iterable[PotentialBreeder]):
+		"""
+		:param initial_breeders: must be deterministic breeders only.
+		"""
+		self.deterministic_breeders = {}
+
+
 BreedResult = Union['DeterministicBreedResult', 'NondeterministicBreedResult']
 
+
 class PossibleGenotype:
-	def __init__(self, owner_result: 'DeterministicBreedResult', child: flower.Flower, percent_color: float, percent_parent: float):
+	def __init__(
+		self, owner_result: 'DeterministicBreedResult', child: flower.Flower,
+		percent_color: float, percent_parent: float
+	):
 		self.child = child
 		self.score = 0
 		self.percent_parent = percent_parent
@@ -39,7 +65,9 @@ class PossibleGenotype:
 
 	@property
 	def expected_steps(self) -> float:
-		return 1.0/self.percent_parent + max(self.result.p1_expected, self.result.p2_expected)
+		steps = 1.0/self.percent_parent
+		steps += max(self.result.p1_expected, self.result.p2_expected)
+		return steps
 
 	def get_print_tuple(self):
 		print_tuple = (
@@ -88,15 +116,16 @@ class PossibleGenotype:
 			self.dist
 		))
 
+
 class NondeterministicBreedResult:
 	def __init__(self):
 		self._genotypes = []
 
-	def get_deterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if g.is_deterministic_color()]
+	def get_deterministic_genotypes(self) -> Sequence[PossibleGenotype]:
+		return [g for g in self.genotypes if g.is_deterministic_color()]
 
-	def get_nondeterministic_genotypes(self) -> Sequence[Tuple[int, PossibleGenotype]]:
-		return [(idx, g) for idx, g in enumerate(self.genotypes) if not g.is_deterministic_color()]
+	def get_nondeterministic_genotypes(self) -> Sequence[PossibleGenotype]:
+		return [g for g in self.genotypes if not g.is_deterministic_color()]
 
 	@property
 	def genotypes(self) -> List[PossibleGenotype]:
@@ -117,7 +146,8 @@ class DeterministicBreedResult:
 		self.p1_expected = p1.expected_steps
 		self.p2_expected = p2.expected_steps
 		self._genotypes: List[PossibleGenotype] = []
-		self._branches_by_phenotype: Optional[Dict[flower.Color, List[PossibleGenotype]]] = None
+		BranchesType = Optional[Dict[flower.Color, List[PossibleGenotype]]]
+		self._branches_by_phenotype: BranchesType = None
 
 	@property
 	def phenotypes(self) -> Dict[flower.Color, List[PossibleGenotype]]:
@@ -129,25 +159,34 @@ class DeterministicBreedResult:
 			raise ValueError("problem generating branches by phenotype")
 
 	@property
-	def phenotype_probability_tree(self) -> Dict[flower.Color, List[Tuple[float, flower.Flower]]]:
+	def phenotype_probability_tree(
+		self
+	) -> Dict[flower.Color, List[Tuple[float, flower.Flower]]]:
 		colors = {}
 		for c in self.phenotypes:
 			colors[c] = [(g.percent_color, g.child) for g in self.phenotypes[c]]
 		return colors
 
-	def add_genotype(self, child: flower.Flower, percent_color: float, percent_parent: float) -> PossibleGenotype:
+	def add_genotype(
+		self, child: flower.Flower, percent_color: float, percent_parent: float
+	) -> PossibleGenotype:
 		pg = PossibleGenotype(self, child, percent_color, percent_parent)
 		self._genotypes.append(pg)
 		self._branches_by_phenotype = None
 		return pg
 
-	def get_genotype_by_child(self, child: flower.Flower) -> Optional[PossibleGenotype]:
+	def get_genotype_by_child(
+		self,
+		child: flower.Flower
+	) -> Optional[PossibleGenotype]:
 		geno_list = [g for g in self.genotypes if g.child == child]
 		# sanity check to ensure we didn't somehow get more than one potential
 		# genotype of the same child in a deterministic breed result
 
 		if len(geno_list) > 1:
-			raise ValueError("multiple items with same genotype found in list of potential genotypes")
+			msg = "multiple items with same genotype found in list"
+			msg += " of potential genotypes"
+			raise ValueError(msg)
 		if len(geno_list) < 1:
 			return None
 		else:
@@ -197,6 +236,7 @@ def remove_cd_breeds_already_in_bp(breeds, bp):
 					continue
 		new_breeds.append(br)
 	return new_breeds
+
 
 def remove_cnd_breeds_already_in_bp(breeds, bp):
 	"""Remove all non-deterministic-by-color breeds (C_nd) that are already in

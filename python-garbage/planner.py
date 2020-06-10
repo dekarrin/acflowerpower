@@ -2,6 +2,7 @@ import flower
 from enum import Enum, auto
 from typing import Dict, Any, List, Union, Sequence, Tuple, Optional, Iterable
 import pprint
+import itertools
 
 
 class StepType(Enum):
@@ -25,24 +26,8 @@ class PotentialBreeder:
 		self.plan = plan
 
 
-BreederProbTree = Tuple[float, PotentialBreeder]
-
-
-class BreederSet:
-	"""Special case of a set, this contains all of the PotentialBreeders than
-	can be used for breeding. Due to the fact that deterministic and
-	nondeterministic breeders may be included, but that there can only be one
-	deterministic breeder for each flower, a simple list or set is insufficient.
-	"""
-
-	def __init__(self, initial_breeders: Iterable[PotentialBreeder]):
-		"""
-		:param initial_breeders: must be deterministic breeders only.
-		"""
-		self.deterministic_breeders = {}
-
-
 BreedResult = Union['DeterministicBreedResult', 'NondeterministicBreedResult']
+BreederProbTree = Sequence[Tuple[float, PotentialBreeder]]
 
 
 class PossibleGenotype:
@@ -221,6 +206,78 @@ class DeterministicBreedResult:
 				branches[c] = []
 			branches[c].append(g)
 		self._branches_by_phenotype = branches
+
+
+class BreederSet:
+	"""Special case of a set, this contains all of the PotentialBreeders than
+	can be used for breeding. Due to the fact that deterministic and
+	nondeterministic breeders may be included, but that there can only be one
+	deterministic breeder for each flower, a simple list or set is insufficient.
+	"""
+
+	def __init__(self, initial_breeders: Iterable[PotentialBreeder]):
+		"""
+		:param initial_breeders: must be deterministic breeders only.
+		"""
+		self.breeders_d: Dict[flower.Flower, PotentialBreeder] = {}
+		self.breeders_nd: Dict[flower.Flower, BreederProbTree] = {}
+		for br in initial_breeders:
+			self.breeders_d[br.flower] = br
+
+	@property
+	def pairs(self):
+		Trees = Iterable[BreederProbTree]
+		b_d_trees: Trees = [((1.0, b)) for b in self.breeders_d.values()]
+		b_nd_trees: Trees = [b for b in self.breeders_nd.values()]
+		all_trees: Trees = b_d_trees + b_nd_trees
+		return itertools.combinations_with_replacement(all_trees, 2)
+
+	def breed_flowers(
+		self, p1_tree: BreederProbTree, p2_tree: BreederProbTree,
+		target: flower.Flower
+	) -> Sequence[DeterministicBreedResult]:
+		breed_results: List[DeterministicBreedResult] = []
+		if len(p1_tree) < 1 or len(p2_tree) < 1:
+			msg = "both breeder probability trees must contain at least one item"
+			raise ValueError(msg)
+		if len(p1_tree) == 1 and len(p2_tree) == 1:
+			# fully deterministic breed result
+			p1 = p1_tree[0][1]
+			p2 = p2_tree[0][1]
+			possible = p1.flower.get_possible_children_with(p2.flower)
+			br = DeterministicBreedResult(p1, p2)
+			for c in possible:
+				child = c[0]
+				parent_percent = c[1]
+				color_percent = c[2]
+				geno = br.add_genotype(child, color_percent, parent_percent)
+				geno.dist = child.distance_from(target)
+				geno.score = self.score_genotype(
+					p1.flower, p2.flower, child, target)
+			breed_results.append(br)
+		return breed_results
+
+	def score_genotype(
+		self, p1: flower.Flower, p2: flower.Flower, child: flower.Flower,
+		target: flower.Flower
+	) -> int:
+		dist = child.distance_from(target)
+		same_as_parent = child == p1 or child == p2
+		dist_parent = min(p1.distance_from(target), p2.distance_from(target))
+		if dist_parent < dist and not self.have_visited(child):
+			score = 1
+		elif dist_parent == dist and same_as_parent:
+			score = 2
+		elif dist_parent < dist and self.have_visited(child):
+			score = 3
+		elif dist_parent == dist and not same_as_parent:
+			score = 4
+		elif dist_parent > dist:
+			score = 5
+		return score
+
+	def have_visited(self, f: flower.Flower) -> bool:
+		return False
 
 
 def remove_cd_breeds_already_in_bp(breeds, bp):

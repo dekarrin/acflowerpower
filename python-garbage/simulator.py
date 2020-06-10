@@ -123,8 +123,8 @@ def print_genos(genos):
 def print_breeders(breeders, tabs=0):
 	tab_before = "  " * tabs
 	print(tab_before + "(breeders:)")
-	for fl in breeders:
-		br = breeders[fl]
+	for fl in breeders.all_trees:
+		fmt = "
 		fmt = "{:s}({:s}, steps={:.3f})"
 		print(fmt.format(tab_before, br.flower.shorthand(), br.expected_steps))
 	print()
@@ -133,43 +133,14 @@ def print_breeders(breeders, tabs=0):
 
 
 def execute_step(
-	potential_breeders: Dict[flower.Flower, planner.PotentialBreeder],
+	potential_breeders: planner.BreederSet,
 	target: flower.Flower, depth
 ):
-	pairs = itertools.combinations_with_replacement(
-		[b.flower for b in potential_breeders.values()], 2)
+
 	breed_results = []
-	for p in pairs:
-		possible = p[0].get_possible_children_with(p[1])
-		pot_p1 = potential_breeders[p[0]]
-		pot_p2 = potential_breeders[p[1]]
-		br = planner.DeterministicBreedResult(pot_p1, pot_p2)
-		for c in possible:
-			child = c[0]
-			parent_percent = c[1]
-			color_percent = c[2]
-			geno = br.add_genotype(child, color_percent, parent_percent)
-
-			# get distance
-			geno.dist = child.distance_from(target)
-
-			# score the genotype
-			same_as_parent = child == p[0] or child == p[1]
-			dist_parent = min(p[0].distance_from(target), p[1].distance_from(target))
-			if dist_parent < geno.dist and not have_visited(child):
-				score = 1
-			elif dist_parent == geno.dist and same_as_parent:
-				score = 2
-			elif dist_parent < geno.dist and have_visited(child):
-				score = 3
-			elif dist_parent == geno.dist and not same_as_parent:
-				score = 4
-			elif dist_parent > geno.dist:
-				score = 5
-			geno.score = score
-
-			# get the expected distance
-		breed_results.append(br)
+	for p in potential_breeders.pairs:
+		res = potential_breeders.breed_flowers(p[0], p[1], target)
+		breed_results += res
 	breeds = []
 	for res in breed_results:
 		for geno in res.genotypes:
@@ -225,13 +196,18 @@ target = flower.Flower(flower.Species.PANSY, 2, 0, 2)
 # might need to extend to a new class
 # x -> {'deterministic': x, 'non-deterministic': y}
 
-starter_breeders = {
-	flower.WhiteSeedPansy: planner.PotentialBreeder(
-		flower.WhiteSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})]),
-	flower.YellowSeedPansy: planner.PotentialBreeder(
-		flower.YellowSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})]),
-	flower.RedSeedPansy: planner.PotentialBreeder(
-		flower.RedSeedPansy, 0, [planner.PlanStep(planner.StepType.START, {})])
-}
+starter_breeders = planner.BreederSet(
+	[
+		planner.PotentialBreeder(
+			flower.WhiteSeedPansy, 0,
+			[planner.PlanStep(planner.StepType.START, {})]),
+		planner.PotentialBreeder(
+			flower.YellowSeedPansy, 0,
+			[planner.PlanStep(planner.StepType.START, {})]),
+		planner.PotentialBreeder(
+			flower.RedSeedPansy, 0,
+			[planner.PlanStep(planner.StepType.START, {})])
+	]
+)
 
 br = execute_step(starter_breeders, target, 0)

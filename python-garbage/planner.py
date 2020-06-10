@@ -225,11 +225,16 @@ class BreederSet:
 			self.breeders_d[br.flower] = br
 
 	@property
-	def pairs(self):
+	def breeder_trees(self):
 		Trees = Iterable[BreederProbTree]
 		b_d_trees: Trees = [((1.0, b)) for b in self.breeders_d.values()]
 		b_nd_trees: Trees = [b for b in self.breeders_nd.values()]
 		all_trees: Trees = b_d_trees + b_nd_trees
+		return all_trees
+
+	@property
+	def pairs(self):
+		all_trees = self.breeder_trees
 		return itertools.combinations_with_replacement(all_trees, 2)
 
 	def breed_flowers(

@@ -1,8 +1,7 @@
 import flower
 import planner
-import itertools
 import pprint
-from typing import Dict
+from typing import List, Sequence
 
 
 def simulate_breeding(f1, f2, trials=10000, print_results=True):
@@ -141,11 +140,11 @@ def execute_step(
 	target: flower.Flower, depth
 ):
 
-	breed_results = []
+	breed_results: List[planner.DeterministicBreedResult] = []
 	for p in potential_breeders.pairs:
-		res = potential_breeders.breed_flowers(p[0], p[1], target)
-		breed_results += res
-	breeds = []
+		res_list = potential_breeders.breed_flowers(p[0], p[1], target)
+		breed_results += res_list
+	breeds: List[planner.PossibleGenotype] = []
 	for res in breed_results:
 		for geno in res.genotypes:
 			breeds.append(geno)
@@ -153,7 +152,7 @@ def execute_step(
 	print("INITIAL:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
-	breeds = planner.remove_cd_breeds_already_in_bp(breeds, potential_breeders)
+	breeds = potential_breeders.filter_out_cd_breeds_already_present(breeds)
 	print("REMOVED Cd ALREADY PRESENT:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)
@@ -163,20 +162,42 @@ def execute_step(
 
 	# this all assumes B_d; deterministic parent flowers
 	for b in [br for br in breeds if br.is_deterministic_color()]:
-		# we already know that any deterministic color left is not in bp, so add it
+		# we already know that any deterministic color left in results is not in
+		# bp at time of start of iteration; however we may have more than one
+		# deterministic for same genotype, so need to check if it is not
+		# actually the lowest when adding. TL;DR that assumption may stop holding
+		# as we iterate.
+
+		# this check completely negates the "remove_cd_breeds_already_in_bp"
+		# as long as that is being done only for b_d. Well, doesn't actually
+		# negate because it removes things we have to iterate over while here
+		# we do not (not possible to do so during iteration). Still, might be
+		# pointless depending on maximum possible breed results.
 		step = planner.PlanStep(
-			planner.StepType.BREED,
-			{'p1': b.result.p1, 'p2': b.result.p2}
+			planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2}
 		)
-		full_plan = potential_breeders[b.result.p1].plan
-		full_plan += potential_breeders[b.result.p2].plan
+		pot_p1 = potential_breeders.get_breeder_with_min_expected(b.result.p1)
+		pot_p2 = potential_breeders.get_breeder_with_min_expected(b.result.p2)
+		full_plan = pot_p1.plan
+		full_plan += pot_p2.plan
 		full_plan += [step]
+		if b.child in potential_breeders:
+			extant = potential_breeders.get_breeder_with_min_expected(b.child)
+			if extant.expected_steps < b.expected_steps:
+				# TODO: consider adding anyways if result is deterministic and there
+				# is currently no deterministic breeder. counterpoint: if expected
+				# is higher, then during simulations statistically it should not
+				# be possible to get a better result over a sufficiently large
+				# set of simulations.
+				# TODO: optimization; if it isn't added, remove it from the
+				# results.
+				continue
 		pot = planner.PotentialBreeder(b.child, b.expected_steps, full_plan)
-		potential_breeders[b.child] = pot
+		potential_breeders.add_deterministic(pot)
 
 	print("(added Cd to Bp)")
 
-	breeds = planner.remove_cnd_breeds_already_in_bp(breeds, potential_breeders)
+	breeds = potential_breeders.filter_out_cnd_breeds_already_present(breeds)
 	print("REMOVED Cnd ALREADY PRESENT:")
 	print_genos(breeds)
 	print_breeders(potential_breeders, tabs=1)

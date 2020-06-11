@@ -13,17 +13,31 @@ class StepType(Enum):
 
 class PlanStep:
 	def __init__(self, type: StepType, data: Dict[str, Any]):
-		self.type = type
-		self.data = data
+		self.type: StepType = type
+		self.data: Dict[str, Any] = data
+
+	def __eq__(self, other):
+		return (self.type, self.data) == (other.type, other.data)
+
+	def __hash__(self, other):
+		return hash((self.type, self.data))
 
 
 class PotentialBreeder:
 	def __init__(
 		self, f: flower.Flower, expected_steps: float, plan: List[PlanStep]
 	):
-		self.flower = f
-		self.expected_steps = expected_steps
-		self.plan = plan
+		self.flower: flower.Flower = f
+		self.expected_steps: float = expected_steps
+		self.plan: List[PlanStep] = plan
+
+	def __eq__(self, other):
+		my_tuple = (self.flower, self.expected_steps, self.plan)
+		other_tuple = (other.flower, other.expected_steps, other.plan)
+		return my_tuple == other_tuple
+
+	def __hash__(self):
+		return hash((self.flower, self.expected_steps, self.plan))
 
 
 BreedResult = Union['DeterministicBreedResult', 'NondeterministicBreedResult']
@@ -35,12 +49,12 @@ class PossibleGenotype:
 		self, owner_result: 'DeterministicBreedResult', child: flower.Flower,
 		percent_color: float, percent_parent: float
 	):
-		self.child = child
-		self.score = 0
-		self.percent_parent = percent_parent
-		self.percent_color = percent_color
-		self.dist = 0
-		self.result = owner_result
+		self.child: flower.Flower = child
+		self.score: int = 0
+		self.percent_parent: float = percent_parent
+		self.percent_color: float = percent_color
+		self.dist: int = 0
+		self.result: DeterministicBreedResult = owner_result
 
 	def is_deterministic_color(self) -> bool:
 		return self.percent_color == 1.0
@@ -120,6 +134,9 @@ class NondeterministicBreedResult:
 		return False
 
 
+BranchesType = Optional[Dict[flower.Color, List[PossibleGenotype]]]
+
+
 class DeterministicBreedResult:
 	def __init__(self, p1: PotentialBreeder, p2: PotentialBreeder):
 		"""Create a new deterministic breed result.
@@ -131,7 +148,6 @@ class DeterministicBreedResult:
 		self.p1_expected = p1.expected_steps
 		self.p2_expected = p2.expected_steps
 		self._genotypes: List[PossibleGenotype] = []
-		BranchesType = Optional[Dict[flower.Color, List[PossibleGenotype]]]
 		self._branches_by_phenotype: BranchesType = None
 
 	@property
@@ -214,24 +230,9 @@ class BreederSet:
 	nondeterministic breeders may be included, but that there can only be one
 	deterministic breeder for each flower, a simple list or set is insufficient.
 
-	The result of the index operation `breeder_set[key]`` accepts a flower as a
-	key and returns the potential breeder with the lowest number of expected
-	steps, or raises KeyError if there is no potential breeder for that flower.
-
-	Similarily, `breeder_set.get(key, default)`` returns the same if a potential
-	breeder exists for the given flower, or the default value if no potential
-	breeder exists for that flower. The special case of breeder_set.get(key)
-	does the same but uses None as the default value.
-
-	The returned potential breeder may be deterministic or non-deterministic
-	and so this should not be relied on for getting breedable flowers;
-	breeder_set.pairs should be used instead. Similarily, it is not possible to
-	iterate over the keys in a breeder_set.
-
-	It is not valid to set the value of an index of breeder_set as there is no
-	way to tell if it should be deterministic or non-deterministic.
-
-	It is not valid to call `del breeder_set`.
+	To check if a BreederSet contains at least one potential breeder for a given
+	genotype, use `flower in breeder_set`. This will return True if there is at
+	least one potential breeder for that flower, or False otherwise.
 	"""
 
 	def __init__(self, initial_breeders: Iterable[PotentialBreeder]):
@@ -261,6 +262,9 @@ class BreederSet:
 	def pairs(self):
 		all_trees = self.breeder_trees
 		return itertools.combinations_with_replacement(all_trees, 2)
+
+	def add_deterministic(self, breeder: PotentialBreeder):
+		self.breeders_d[breeder.flower] = breeder
 
 	def breed_flowers(
 		self, p1_tree: BreederProbTree, p2_tree: BreederProbTree,
@@ -309,57 +313,87 @@ class BreederSet:
 	def have_visited(self, f: flower.Flower) -> bool:
 		return False
 
-	def __getitem__(self, key):
-		bd = self.breeders_d.get(key)
-		nds = self.breeders_nd.get(key)
-		if bd is None and nds is None:
-			raise KeyError(key)
+	def get_breeder_with_min_expected(self, f: flower.Flower) -> PotentialBreeder:
+		"""Get the potential breeder for given flower that has the fewest number
+		of expected steps. If there is currently no potential breeder with the
+		genotype of the given flower, KeyError is raised.
 
+		Use `flower in breeder_set` to check if this breeder_set has at least
+		one potential breeder for a flower.
+		"""
 
+		deterministic = self.breeders_d.get(f)
+		non_deterministics = self.breeders_nd.get(f)
+		if deterministic is None and non_deterministics is None:
+			raise KeyError(f)
+		# start with assigning deterministic because it is already only one
+		# path or else it is None.
+		min_breeder: Optional[PotentialBreeder] = deterministic
+		if non_deterministics is not None:
+			# find the one with the lowest expected steps
+			for b_nd in non_deterministics:
+				for branch in [br for br in b_nd if br[1].flower == f]:
+					if min_breeder is None:
+						min_breeder = branch[1]
+					elif branch[1].expected_steps < min_breeder.expected_steps:
+						min_breeder = branch[1]
+		if min_breeder is None:
+			# sanity check; should never happen
+			raise ValueError("min_breeder never set but key is present")
+		else:
+			return min_breeder
 
-def remove_cd_breeds_already_in_bp(breeds, bp):
-	"""Remove all deterministic-by-color breeds (C_d) that are already in
-	potential breeders (b_p) whose expected steps is less than or equal to the
-	expected steps of the plan already in b_p)"""
-	new_breeds = []
-	for br in breeds:
-		if br.is_deterministic_color():
-			if br.child in bp:
-				if bp[br.child].expected_steps <= br.expected_steps:
-					# then dont add it
-					continue
-		new_breeds.append(br)
-	return new_breeds
+	def __contains__(self, key: flower.Flower):
+		return key in self.breeders_d or key in self.breeders_nd
 
+	def filter_out_cd_breeds_already_present(
+		self, breeds: Sequence[PossibleGenotype]
+	) -> List[PossibleGenotype]:
+		"""Remove all deterministic-by-color breeds (C_d) that are already in
+		this BreederSet whose expected steps is less than or equal to the
+		expected steps of the plan already in b_p)"""
+		new_breeds = []
+		for br in breeds:
+			if br.is_deterministic_color():
+				if br.child in self:
+					min_br = self.get_breeder_with_min_expected(br.child)
+					if min_br.expected_steps <= br.expected_steps:
+						# then dont add it
+						continue
+			new_breeds.append(br)
+		return new_breeds
 
-def remove_cnd_breeds_already_in_bp(breeds, bp):
-	"""Remove all non-deterministic-by-color breeds (C_nd) that are already in
-	potential breeders (b_p) where each genotype in that color for the parents
-	has expected steps less than or equal to the expected steps of the plan
-	already in b_p)"""
-	new_breeds = []
-	for br in breeds:
-		if not br.is_deterministic_color():
-			# no need to check if all the genotypes for this phenotype are same
-			# as breeders (score of 2); instead we will check that all genotypes
-			# are already in b_p with an expected steps in bp less than or
-			# equal to the one in results. We assume that parents will always be
-			# in potential breeders, and since going back to parents increases
-			# number of expected steps, this will cover the "same as breeders"
-			# case as well. NOTE: that is true as long as that initial
-			# assumption holds.
-			remove_from_breeds = True
-			for possible_geno in br.result.phenotypes[br.child.get_color()]:
-				if possible_geno.child in bp:
-					# if one of them IS good, mark this genotype as not removable
-					# and stop checking
-					if bp[possible_geno.child].expected_steps > possible_geno.expected_steps:
+	def filter_out_cnd_breeds_already_present(
+		self, breeds: Sequence[PossibleGenotype]
+	) -> List[PossibleGenotype]:
+		"""Remove all non-deterministic-by-color breeds (C_nd) that are already in
+		potential breeders (b_p) where each genotype in that color for the parents
+		has expected steps less than or equal to the expected steps of the plan
+		already in b_p)"""
+		new_breeds = []
+		for br in breeds:
+			if not br.is_deterministic_color():
+				# no need to check if all the genotypes for this phenotype are same
+				# as breeders (score of 2); instead we will check that all genotypes
+				# are already in b_p with an expected steps in bp less than or
+				# equal to the one in results. We assume that parents will always be
+				# in potential breeders, and since going back to parents increases
+				# number of expected steps, this will cover the "same as breeders"
+				# case as well. NOTE: that is true as long as that initial
+				# assumption holds.
+				remove_from_breeds = True
+				for possible_geno in br.result.phenotypes[br.child.get_color()]:
+					if possible_geno.child in self:
+						# if one of them IS good, mark this genotype as not removable
+						# and stop checking
+						min_br = self.get_breeder_with_min_expected(br.child)
+						if min_br.expected_steps > possible_geno.expected_steps:
+							remove_from_breeds = False
+							break
+					else:
 						remove_from_breeds = False
 						break
-				else:
-					remove_from_breeds = False
-					break
-			if remove_from_breeds:
-				continue  # continue the loop without hitting the add
-		new_breeds.append(br)
-	return new_breeds
+				if remove_from_breeds:
+					continue  # continue the loop without hitting the add
+			new_breeds.append(br)
+		return new_breeds

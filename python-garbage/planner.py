@@ -213,6 +213,25 @@ class BreederSet:
 	can be used for breeding. Due to the fact that deterministic and
 	nondeterministic breeders may be included, but that there can only be one
 	deterministic breeder for each flower, a simple list or set is insufficient.
+
+	The result of the index operation `breeder_set[key]`` accepts a flower as a
+	key and returns the potential breeder with the lowest number of expected
+	steps, or raises KeyError if there is no potential breeder for that flower.
+
+	Similarily, `breeder_set.get(key, default)`` returns the same if a potential
+	breeder exists for the given flower, or the default value if no potential
+	breeder exists for that flower. The special case of breeder_set.get(key)
+	does the same but uses None as the default value.
+
+	The returned potential breeder may be deterministic or non-deterministic
+	and so this should not be relied on for getting breedable flowers;
+	breeder_set.pairs should be used instead. Similarily, it is not possible to
+	iterate over the keys in a breeder_set.
+
+	It is not valid to set the value of an index of breeder_set as there is no
+	way to tell if it should be deterministic or non-deterministic.
+
+	It is not valid to call `del breeder_set`.
 	"""
 
 	def __init__(self, initial_breeders: Iterable[PotentialBreeder]):
@@ -220,15 +239,21 @@ class BreederSet:
 		:param initial_breeders: must be deterministic breeders only.
 		"""
 		self.breeders_d: Dict[flower.Flower, PotentialBreeder] = {}
-		self.breeders_nd: Dict[flower.Flower, BreederProbTree] = {}
+		self.breeders_nd: Dict[flower.Flower, Sequence[BreederProbTree]] = {}
+		self.unique_breeders_nd: Sequence[BreederProbTree] = []
 		for br in initial_breeders:
 			self.breeders_d[br.flower] = br
+
+		# b_nd needs to be stored as both a map of flowers to list of all
+		# present b_nd trees that contain a potential breeder for that flower,
+		# for retrieval by flower, as well as a list of all unique prob trees,
+		# for iteration.
 
 	@property
 	def breeder_trees(self):
 		Trees = Iterable[BreederProbTree]
 		b_d_trees: Trees = [((1.0, b)) for b in self.breeders_d.values()]
-		b_nd_trees: Trees = [b for b in self.breeders_nd.values()]
+		b_nd_trees: Trees = [b for b in self.unique_breeders_nd.values()]
 		all_trees: Trees = b_d_trees + b_nd_trees
 		return all_trees
 
@@ -283,6 +308,13 @@ class BreederSet:
 
 	def have_visited(self, f: flower.Flower) -> bool:
 		return False
+
+	def __getitem__(self, key):
+		bd = self.breeders_d.get(key)
+		nds = self.breeders_nd.get(key)
+		if bd is None and nds is None:
+			raise KeyError(key)
+
 
 
 def remove_cd_breeds_already_in_bp(breeds, bp):

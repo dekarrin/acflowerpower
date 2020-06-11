@@ -123,10 +123,14 @@ def print_genos(genos):
 def print_breeders(breeders, tabs=0):
 	tab_before = "  " * tabs
 	print(tab_before + "(breeders:)")
-	for fl in breeders.all_trees:
-		fmt = "
-		fmt = "{:s}({:s}, steps={:.3f})"
-		print(fmt.format(tab_before, br.flower.shorthand(), br.expected_steps))
+	for tree in breeders.all_trees:
+		line = tabs
+		for path in tree:
+			odds = path[0]
+			br = path[1]
+			fmt = "({:.3f}, ({:s}, steps={:.3f}))"
+			line += fmt.format(odds, br.flower.shorthand(), br.expected_steps)
+		print(line)
 	print()
 
 # state_stack = []

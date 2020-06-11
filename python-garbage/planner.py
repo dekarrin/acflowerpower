@@ -254,7 +254,7 @@ class BreederSet:
 	def breeder_trees(self):
 		Trees = Iterable[BreederProbTree]
 		b_d_trees: Trees = [((1.0, b)) for b in self.breeders_d.values()]
-		b_nd_trees: Trees = [b for b in self.unique_breeders_nd.values()]
+		b_nd_trees: Trees = self.unique_breeders_nd
 		all_trees: Trees = b_d_trees + b_nd_trees
 		return all_trees
 

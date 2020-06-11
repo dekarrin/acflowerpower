@@ -119,10 +119,10 @@ def print_genos(genos):
 	print()
 
 
-def print_breeders(breeders, tabs=0):
+def print_breeders(breeders: planner.BreederSet, tabs=0):
 	tab_before = "  " * tabs
 	print(tab_before + "(breeders:)")
-	for tree in breeders.all_trees:
+	for tree in breeders.breeder_trees:
 		line = tabs
 		for path in tree:
 			odds = path[0]

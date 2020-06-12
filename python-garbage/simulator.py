@@ -165,17 +165,6 @@ def execute_step(
 	for b in breeds:
 		if b.is_deterministic_breed():
 			if b.is_deterministic_color():
-				# we already know that any deterministic color left in results is not in
-				# bp at time of start of iteration; however we may have more than one
-				# deterministic for same genotype, so need to check if it is not
-				# actually the lowest when adding. TL;DR that assumption may stop holding
-				# as we iterate.
-
-				# this check completely negates the "remove_cd_breeds_already_in_bp"
-				# as long as that is being done only for b_d. Well, doesn't actually
-				# negate because it removes things we have to iterate over while here
-				# we do not (not possible to do so during iteration). Still, might be
-				# pointless depending on maximum possible breed results.
 				step = planner.PlanStep(
 					planner.StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2}
 				)

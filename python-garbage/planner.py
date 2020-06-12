@@ -380,3 +380,102 @@ class BreederSet:
 					continue  # continue the loop without hitting the add
 			new_breeds.append(br)
 		return new_breeds
+
+
+def print_genos(genos):
+	pprint.pprint([x.get_print_tuple() for x in genos])
+	print("(total: " + str(len(genos)) + ")")
+	print()
+
+
+class BreedPlanner:
+
+	def __init__(self, target: flower.Flower, *starter_flowers: flower.Flower):
+		# TODO: check to ensure starter_flowers has enough to breed and at least
+		# that the target is possible
+		starters = [PotentialBreeder(f, 0, [PlanStep(StepType.START, {})]) for f in starter_flowers]
+		self.bp = BreederSet(starters)
+		self.target = target
+
+	def print_breeders(self, tabs=0):
+		tab_before = "  " * tabs
+		print(tab_before + "(breeders:)")
+		for tree in self.bp.breeder_trees:
+			line = tab_before + "["
+			for idx, path in enumerate(tree):
+				odds = path[0]
+				br = path[1]
+				fmt = "({:.3f}, ({:s}, steps={:.3f}))"
+				line += fmt.format(odds, br.flower.shorthand(), br.expected_steps)
+				if idx + 1 < len(tree):
+					line += ","
+			line += "]"
+			print(line)
+		print()
+
+	def find_plan(self):
+		breed_results: List[DeterministicBreedResult] = []
+		for p in self.bp.pairs:
+			res_list = self.bp.breed_flowers(p[0], p[1], self.target)
+			breed_results += res_list
+		breeds: List[PossibleGenotype] = []
+		for res in breed_results:
+			for geno in res.genotypes:
+				breeds.append(geno)
+
+		print("INITIAL:")
+		print_genos(breeds)
+		self.print_breeders(1)
+		#breeds = potential_breeders.filter_out_cd_breeds_already_present(breeds)
+
+		# add all deterministics to Bp immediately; they may knock out Cnds
+		# in next step
+
+		new_breeds = []
+		for b in breeds:
+			if b.is_deterministic_breed():
+				if b.is_deterministic_color():
+					step = PlanStep(
+						StepType.BREED, {'p1': b.result.p1, 'p2': b.result.p2}
+					)
+					pot_p1 = self.bp.get_breeder_with_min_expected(b.result.p1)
+					pot_p2 = self.bp.get_breeder_with_min_expected(b.result.p2)
+					full_plan = pot_p1.plan
+					full_plan += pot_p2.plan
+					full_plan += [step]
+					if b.child in self.bp:
+						extant = self.bp.get_breeder_with_min_expected(b.child)
+						if extant.expected_steps < b.expected_steps:
+							# TODO: consider adding anyways if result is deterministic and there
+							# is currently no deterministic breeder. counterpoint: if expected
+							# is higher, then during simulations statistically it should not
+							# be possible to get a better result over a sufficiently large
+							# set of simulations.
+
+							# if it isn't added to potential_breeders, this continue
+							# skips the add and removes it from the result
+							continue
+					pot = PotentialBreeder(b.child, b.expected_steps, full_plan)
+					self.bp.add_deterministic(pot)
+			new_breeds.append(b)
+		breeds = new_breeds
+
+		print("ADDED Cd TO Bp AND REMOVED Cd ALREADY PRESENT:")
+		print_genos(breeds)
+		self.print_breeders(1)
+
+		breeds = self.bp.filter_out_cnd_breeds_already_present(breeds)
+		print("REMOVED Cnd ALREADY PRESENT:")
+		print_genos(breeds)
+		self.print_breeders(1)
+
+		breeds = sorted(
+			breeds,
+			key=lambda x: (x.percent_color, x.score, x.percent_color),
+			reverse=True
+		)
+		print("SORTED:")
+		print_genos(breeds)
+		self.print_breeders(1)
+
+		return breeds

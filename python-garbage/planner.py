@@ -346,23 +346,6 @@ class BreederSet:
 	def __contains__(self, key: flower.Flower):
 		return key in self.breeders_d or key in self.breeders_nd
 
-	def filter_out_cd_breeds_already_present(
-		self, breeds: Sequence[PossibleGenotype]
-	) -> List[PossibleGenotype]:
-		"""Remove all deterministic-by-color breeds (C_d) that are already in
-		this BreederSet whose expected steps is less than or equal to the
-		expected steps of the plan already in b_p)"""
-		new_breeds = []
-		for br in breeds:
-			if br.is_deterministic_color():
-				if br.child in self:
-					min_br = self.get_breeder_with_min_expected(br.child)
-					if min_br.expected_steps <= br.expected_steps:
-						# then dont add it
-						continue
-			new_breeds.append(br)
-		return new_breeds
-
 	def filter_out_cnd_breeds_already_present(
 		self, breeds: Sequence[PossibleGenotype]
 	) -> List[PossibleGenotype]:

@@ -12,9 +12,9 @@ INITIAL:
 (total: 10)
 
   (breeders:)
-  (S:001:_W, steps=0.000)
-  (S:020:_Y, steps=0.000)
-  (S:200:_R, steps=0.000)
+  [(1.000, (S:001:_W, steps=0.000))]
+  [(1.000, (S:020:_Y, steps=0.000))]
+  [(1.000, (S:200:_R, steps=0.000))]
 
 REMOVED Cd ALREADY PRESENT:
 [('S:001:_W', 'S:001:_W', ' :000:_W', 0.3333333333333333, 1, 0.25, 4),
@@ -28,9 +28,9 @@ REMOVED Cd ALREADY PRESENT:
 (total: 8)
 
   (breeders:)
-  (S:001:_W, steps=0.000)
-  (S:020:_Y, steps=0.000)
-  (S:200:_R, steps=0.000)
+  [(1.000, (S:001:_W, steps=0.000))]
+  [(1.000, (S:020:_Y, steps=0.000))]
+  [(1.000, (S:200:_R, steps=0.000))]
 
 (added Cd to Bp)
 REMOVED Cnd ALREADY PRESENT:
@@ -45,11 +45,11 @@ REMOVED Cnd ALREADY PRESENT:
 (total: 8)
 
   (breeders:)
-  (S:001:_W, steps=0.000)
-  (S:020:_Y, steps=0.000)
-  (S:200:_R, steps=0.000)
-  ( :002:BU, steps=4.000)
-  ( :110:OR, steps=1.000)
+  [(1.000, (S:001:_W, steps=0.000))]
+  [(1.000, (S:020:_Y, steps=0.000))]
+  [(1.000, (S:200:_R, steps=0.000))]
+  [(1.000, ( :002:BU, steps=4.000))]
+  [(1.000, ( :110:OR, steps=1.000))]
 
 SORTED:
 [('S:001:_W', 'S:001:_W', ' :002:BU', 1.0, 5, 0.25, 2),
@@ -63,9 +63,9 @@ SORTED:
 (total: 8)
 
   (breeders:)
-  (S:001:_W, steps=0.000)
-  (S:020:_Y, steps=0.000)
-  (S:200:_R, steps=0.000)
-  ( :002:BU, steps=4.000)
-  ( :110:OR, steps=1.000)
+  [(1.000, (S:001:_W, steps=0.000))]
+  [(1.000, (S:020:_Y, steps=0.000))]
+  [(1.000, (S:200:_R, steps=0.000))]
+  [(1.000, ( :002:BU, steps=4.000))]
+  [(1.000, ( :110:OR, steps=1.000))]
 

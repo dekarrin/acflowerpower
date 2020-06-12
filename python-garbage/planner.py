@@ -241,7 +241,7 @@ class BreederSet:
 		"""
 		self.breeders_d: Dict[flower.Flower, PotentialBreeder] = {}
 		self.breeders_nd: Dict[flower.Flower, Sequence[BreederProbTree]] = {}
-		self.unique_breeders_nd: Sequence[BreederProbTree] = []
+		self.unique_breeders_nd: List[BreederProbTree] = []
 		for br in initial_breeders:
 			self.breeders_d[br.flower] = br
 
@@ -251,9 +251,9 @@ class BreederSet:
 		# for iteration.
 
 	@property
-	def breeder_trees(self):
-		Trees = Iterable[BreederProbTree]
-		b_d_trees: Trees = [((1.0, b)) for b in self.breeders_d.values()]
+	def breeder_trees(self) -> Iterable[BreederProbTree]:
+		Trees = List[BreederProbTree]
+		b_d_trees: Trees = [((1.0, b),) for b in self.breeders_d.values()]
 		b_nd_trees: Trees = self.unique_breeders_nd
 		all_trees: Trees = b_d_trees + b_nd_trees
 		return all_trees

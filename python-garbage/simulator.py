@@ -123,12 +123,15 @@ def print_breeders(breeders: planner.BreederSet, tabs=0):
 	tab_before = "  " * tabs
 	print(tab_before + "(breeders:)")
 	for tree in breeders.breeder_trees:
-		line = tabs
-		for path in tree:
+		line = tab_before + "["
+		for idx, path in enumerate(tree):
 			odds = path[0]
 			br = path[1]
 			fmt = "({:.3f}, ({:s}, steps={:.3f}))"
 			line += fmt.format(odds, br.flower.shorthand(), br.expected_steps)
+			if idx + 1 < len(tree):
+				line += ","
+		line += "]"
 		print(line)
 	print()
 
